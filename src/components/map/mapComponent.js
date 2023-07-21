@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import MarkerInfoWindow from "./MarkerInfoWindow";
+import ReactDOMServer from "react-dom/server";
 
 const MapComponent = () => {
   useEffect(() => {
@@ -25,16 +27,16 @@ const MapComponent = () => {
         `This is the clickable of markger : ${marker.getClickable()}`
       );
 
+      const componentAsString = ReactDOMServer.renderToString(
+        <MarkerInfoWindow title={title} />
+      );
       var infoWindow = new window.naver.maps.InfoWindow({
-        content:
-          '<div style="width:150px;text-align:center;padding:10px;">The Letter is <b>"' +
-          title +
-          '"</b>.</div>',
+        content: componentAsString,
       });
       window.naver.maps.Event.addListener(
         marker,
         "click",
-        이게된다고(marker, infoWindow)
+        onMarkerClick(marker, infoWindow)
       );
     };
 
@@ -45,7 +47,7 @@ const MapComponent = () => {
 
   return <div id="map" style={{ width: "100%", height: "100vh" }} />;
 
-  function 이게된다고(marker, infoWindow) {
+  function onMarkerClick(marker, infoWindow) {
     return function (e) {
       console.log(marker.title);
       if (infoWindow.getMap()) {
