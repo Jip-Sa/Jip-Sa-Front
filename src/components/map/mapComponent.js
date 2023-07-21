@@ -17,9 +17,18 @@ const MapComponent = () => {
 
       const markerOptions = {
         position: new window.naver.maps.LatLng(37.3595704, 127.105399),
+        title: "test Marker",
         map: map,
       };
-      var seoulMarker = new window.naver.maps.Marker(markerOptions);
+      var marker = new window.naver.maps.Marker(markerOptions);
+      console.log(
+        `This is the clickable of markger : ${marker.getClickable()}`
+      );
+      window.naver.maps.Event.addListener(
+        marker,
+        "click",
+        onMarkerClick(marker)
+      );
     };
 
     return () => {
@@ -28,6 +37,12 @@ const MapComponent = () => {
   }, []);
 
   return <div id="map" style={{ width: "100%", height: "100vh" }} />;
+
+  function onMarkerClick(marker) {
+    return function (e) {
+      console.log(marker.title);
+    };
+  }
 };
 
 export default MapComponent;
