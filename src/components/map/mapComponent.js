@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import MarkerInfoWindow from "./markerInfoWindow";
 
 const MapComponent = ({ location }) => {
   const [initialized, setInitialized] = useState(false);
@@ -10,7 +9,7 @@ const MapComponent = ({ location }) => {
     const script = document.createElement("script");
     script.src =
       "https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=n6l9jjqqf3&submodules=geocoder";
-    script.async = true;
+    script.async = false;
     document.body.appendChild(script);
     script.onload = () => {
       const mapOptions = {
@@ -34,7 +33,8 @@ const MapComponent = ({ location }) => {
   }, []);
 
   useEffect(() => {
-    if (initialized && location !== "") {
+    if (initialized && location !== "" && location !== null) {
+      console.log(`This is Query : ${location}`);
       console.log("Before Initialize");
       window.naver.maps.Service.geocode(
         {
