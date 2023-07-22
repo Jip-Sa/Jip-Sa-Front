@@ -6,80 +6,88 @@ const MapComponent = ({ location }) => {
   const [infoWindow, setInfoWindowObject] = useState(null);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src =
-      "https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=n6l9jjqqf3&submodules=geocoder";
-    script.async = false;
-    document.body.appendChild(script);
-    script.onload = () => {
-      const mapOptions = {
-        center: new window.naver.maps.LatLng(37.3595704, 127.105399),
-        zoom: 10,
-      };
-      setMapObject(new window.naver.maps.Map("map", mapOptions));
+    const mapScriptSrc = `//dapi.kakao.com/v2/maps/sdk.js?appkey=51065c0b917224030b3b3905d372a82b&autoload=false`;
 
-      setInfoWindowObject(
-        new window.naver.maps.InfoWindow({
-          anchorSkew: true,
-        })
-      );
-      console.log(`load Finish`);
-      setInitialized(true);
-    };
+    const existingScript = document.querySelector(
+      `script[src="${mapScriptSrc}"]`
+    );
+    if (existingScript) {
+      existingScript.remove();
+    }
 
-    return () => {
-      document.body.removeChild(script);
+    const mapScript = document.createElement("script");
+
+    mapScript.async = true;
+    mapScript.src = mapScriptSrc;
+
+    document.head.appendChild(mapScript);
+    var container = document.getElementById("map");
+    const onLoadKakaoMap = () => {
+      window.kakao.maps.load(() => {
+        const options = {
+          center: new window.kakao.maps.LatLng(37.2965, 126.9717),
+          level: 5,
+          preventDraggable: true,
+          zoomControl: true,
+        };
+
+        const map = new window.kakao.maps.Map(container, options);
+        setMapObject(map);
+      });
     };
+    mapScript.addEventListener("load", onLoadKakaoMap);
+
+    return () => mapScript.removeEventListener("load", onLoadKakaoMap);
   }, []);
 
   useEffect(() => {
     if (initialized && location !== "" && location !== null) {
       console.log(`This is Query : ${location}`);
       console.log("Before Initialize");
-      window.naver.maps.Service.geocode(
-        {
-          query: location,
-        },
-        function (status, response) {
-          if (status === window.naver.maps.Service.Status.ERROR) {
-            return alert("Something Wrong!");
-          }
+      // window.naver.maps.Service.geocode(
+      //   {
+      //     query: location,
+      //   },
+      //   function (status, response) {
+      //     if (status === window.naver.maps.Service.Status.ERROR) {
+      //       return alert("Something Wrong!");
+      //     }
 
-          if (response.v2.meta.totalCount === 0) {
-            return alert("totalCount" + response.v2.meta.totalCount);
-          }
+      //     if (response.v2.meta.totalCount === 0) {
+      //       return alert("totalCount" + response.v2.meta.totalCount);
+      //     }
 
-          var htmlAddresses = [],
-            item = response.v2.addresses[0],
-            point = new window.naver.maps.Point(item.x, item.y);
+      //     var htmlAddresses = [],
+      //       item = response.v2.addresses[0],
+      //       point = new window.naver.maps.Point(item.x, item.y);
 
-          if (item.roadAddress) {
-            htmlAddresses.push("[도로명 주소] " + item.roadAddress);
-          }
+      //     if (item.roadAddress) {
+      //       htmlAddresses.push("[도로명 주소] " + item.roadAddress);
+      //     }
 
-          if (item.jibunAddress) {
-            htmlAddresses.push("[지번 주소] " + item.jibunAddress);
-          }
+      //     if (item.jibunAddress) {
+      //       htmlAddresses.push("[지번 주소] " + item.jibunAddress);
+      //     }
 
-          if (item.englishAddress) {
-            htmlAddresses.push("[영문명 주소] " + item.englishAddress);
-          }
+      //     if (item.englishAddress) {
+      //       htmlAddresses.push("[영문명 주소] " + item.englishAddress);
+      //     }
 
-          infoWindow.setContent(
-            [
-              '<div style="padding:10px;min-width:200px;line-height:150%;">',
-              '<h4 style="margin-top:5px;">검색 주소 : ' +
-                location +
-                "</h4><br />",
-              htmlAddresses.join("<br />"),
-              "</div>",
-            ].join("\n")
-          );
+      //     infoWindow.setContent(
+      //       [
+      //         '<div style="padding:10px;min-width:200px;line-height:150%;">',
+      //         '<h4 style="margin-top:5px;">검색 주소 : ' +
+      //           location +
+      //           "</h4><br />",
+      //         htmlAddresses.join("<br />"),
+      //         "</div>",
+      //       ].join("\n")
+      //     );
 
-          mapObject.setCenter(point);
-          infoWindow.open(mapObject, point);
-        }
-      );
+      //     mapObject.setCenter(point);
+      //     infoWindow.open(mapObject, point);
+      //   }
+      // );
     }
   }, [location, mapObject, infoWindow, initialized]);
 
