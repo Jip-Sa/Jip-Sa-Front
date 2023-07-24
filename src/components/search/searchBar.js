@@ -37,7 +37,7 @@ class SearchData {
   }
 }
 
-const SearchBar = ({ onSearch }) => {
+const SearchBar = ({ getSearchResults }) => {
   const [query, setQuery] = useState("");
   const [placeObject, setPlaceObject] = useState();
   const [searchResults, setSearchResults] = useState([
@@ -110,6 +110,7 @@ const SearchBar = ({ onSearch }) => {
       });
       console.log(`Search Complete : ${searchDatas}`);
       setSearchResults(searchDatas);
+      getSearchResults(searchDatas);
     } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
       alert("검색 결과가 존재하지 않습니다.");
       return;
@@ -152,8 +153,10 @@ const SearchBar = ({ onSearch }) => {
                 onKeyDown={handleKeyDown}
               />
             </div>
-
-            <div class="search-result-container" style={{ height: boxHeight }}>
+            <div
+              className="search-result-container"
+              style={{ height: boxHeight }}
+            >
               {searchResults.map((item, index) => (
                 <SearchListItem
                   key={index}

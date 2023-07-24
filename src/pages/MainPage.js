@@ -4,15 +4,16 @@ import SearchBar from "../components/search/searchBar";
 import "./mainPage.css"; // 외부 CSS 파일을 import
 
 const MainPage = () => {
-  const [query, setQuery] = useState("강남구 청담동 91-2");
+  const [searchResults, setSearchResults] = useState([]);
   const handleSearch = (results) => {
-    setQuery(results);
+    console.log(`Result changed!!!!!!!!`);
+    setSearchResults(results);
   };
   return (
     <div className="main-page-container">
-      <MapComponent location={query} />
+      <MapComponent searchResults={searchResults} />
       <div className="search-bar-container">
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar getSearchResults={handleSearch} />
       </div>
     </div>
   );

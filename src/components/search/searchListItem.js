@@ -13,7 +13,7 @@ const SearchListItem = (props) => {
     color = "success";
   }
   useEffect(() => {
-    console.log(`This is Data place : ${data.place}`);
+    // console.log(`This is Data place : ${data.place}`);
     // console.log(`This is name : ${data.place}, address : ${data.address}`);
   }, [data]);
 
