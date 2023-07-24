@@ -1,0 +1,14 @@
+.container {
+  width: 25rem;
+  display: flex;
+  color: white;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.search-container {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  margin-top: 0.2rem;
+}

@@ -1,0 +1,11 @@
+/* MapPage.css (외부 CSS 파일) */
+.main-page-container {
+  position: relative;
+}
+
+.search-bar-container {
+  position: absolute;
+  top: 3vh; /* 이 값에 따라 세로 위치 조정 (50px은 예시) */
+  left: 3vw; /* 이 값에 따라 가로 위치 조정 (20px은 예시) */
+  z-index: 1;
+}

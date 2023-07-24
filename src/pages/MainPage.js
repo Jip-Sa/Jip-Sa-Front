@@ -1,22 +1,34 @@
 import React, { useState } from "react";
 import MapComponent from "../components/map/mapComponent";
-import SearchBar from "../components/searchBar";
+import SearchBar from "../components/search/searchBar";
+import "./mainPage.css"; // 외부 CSS 파일을 import
+
+class SearchData {
+  constructor(level, name, address) {
+    this.level = 1;
+    this.name = name;
+    this.address = address;
+  }
+}
 
 const MainPage = () => {
-  const [searchResult, setSearchResult] = useState(null);
-
+  const [searchResult, setSearchResult] = useState([
+    new SearchData(1, "태평소", "대전 유성구 뭐시기"),
+    new SearchData(1, "카이스트", "대전 유성구 뭐시기"),
+    new SearchData(1, "N1", "대전 유성구 뭐시기"),
+    new SearchData(1, "몰입캠프", "대전 유성구 뭐시기"),
+    new SearchData(1, "우리집", "청주 상당구 뭐시기"),
+  ]);
+  const [query, setQuery] = useState("");
   const handleSearch = (results) => {
-    // 검색 요청 처리 로직
-    // 예를 들어, 네이버 지도 API를 사용하여 검색 결과를 가져올 수 있습니다.
-    // setSearchResult를 통해 검색 결과를 저장합니다.
-    // console.log(`This is Query : ${query}`);
-    setSearchResult(results);
+    setQuery(results);
   };
   return (
-    <div>
-      <h1>Map Page</h1>
-      <SearchBar onSearch={handleSearch} />
-      <MapComponent location={searchResult} />
+    <div className="main-page-container">
+      <MapComponent location={query} />
+      <div className="search-bar-container">
+        <SearchBar onSearch={handleSearch} searchResults={searchResult} />
+      </div>
     </div>
   );
 };
