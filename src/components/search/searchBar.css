@@ -14,6 +14,5 @@
 }
 
 .search-result-container {
-  height: 70vh;
-  overflow: auto; /* 스크롤이 가능하도록 설정 */
+  overflow-y: auto; /* 스크롤이 가능하도록 설정 */
 }

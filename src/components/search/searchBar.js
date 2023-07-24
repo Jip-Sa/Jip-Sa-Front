@@ -43,6 +43,7 @@ const SearchBar = ({ onSearch }) => {
   const [searchResults, setSearchResults] = useState([
     new SearchData(1, "", "", "", "", "", "", "", ""),
   ]);
+  const [boxHeight, setBoxHeight] = useState("auto");
 
   useEffect(() => {
     window.kakao.maps.load(() => {
@@ -50,6 +51,10 @@ const SearchBar = ({ onSearch }) => {
       setPlaceObject(place);
     });
   }, []);
+
+  useEffect(() => {
+    setBoxHeight(searchResults.length > 7 ? "70vh" : "auto");
+  }, [searchResults]);
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
@@ -116,13 +121,13 @@ const SearchBar = ({ onSearch }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="container">
-        <Box
-          boxShadow={10}
-          style={{
-            borderRadius: "0 0 10px 10px",
-          }}
-        >
+      <Box
+        boxShadow={10}
+        style={{
+          borderRadius: "0 0 10px 10px",
+        }}
+      >
+        <div className="container">
           <div className="search-container">
             <div
               style={{
@@ -147,7 +152,8 @@ const SearchBar = ({ onSearch }) => {
                 onKeyDown={handleKeyDown}
               />
             </div>
-            <div class="search-result-container">
+
+            <div class="search-result-container" style={{ height: boxHeight }}>
               {searchResults.map((item, index) => (
                 <SearchListItem
                   key={index}
@@ -158,8 +164,8 @@ const SearchBar = ({ onSearch }) => {
               ))}
             </div>
           </div>
-        </Box>
-      </div>
+        </div>
+      </Box>
     </ThemeProvider>
   );
 };
