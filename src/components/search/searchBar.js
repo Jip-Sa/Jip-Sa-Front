@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import theme from "../../Theme/theme";
 import {
   InputBase,
@@ -13,21 +13,106 @@ import SearchIcon from "@mui/icons-material/Search";
 import SearchListItem from "./searchListItem";
 import "./searchBar.css"; // 외부 CSS 파일을 import
 
-const SearchBar = ({ onSearch, searchResults }) => {
+class SearchData {
+  constructor(
+    level,
+    address,
+    group,
+    place,
+    road_address,
+    phone,
+    place_url,
+    x,
+    y
+  ) {
+    this.level = 1;
+    this.address = address;
+    this.group = group;
+    this.place = place;
+    this.road_address = road_address;
+    this.phone = phone;
+    this.place_url = place_url;
+    this.x = x;
+    this.y = y;
+  }
+}
+
+const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
+  const [placeObject, setPlaceObject] = useState();
+  const [searchResults, setSearchResults] = useState([
+    new SearchData(1, "", "", "", "", "", "", "", ""),
+  ]);
+
+  useEffect(() => {
+    window.kakao.maps.load(() => {
+      const place = new window.kakao.maps.services.Places();
+      setPlaceObject(place);
+    });
+  }, []);
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
   };
-
-  const handleSearch = () => {
-    onSearch(query);
+  const handleSearch = (e) => {
+    searchByKeyword();
   };
   const handleKeyDown = (e) => {
-    if (e.keyCode === 13) {
-      // 완료 눌렀을 때 실행될 동작
+    if (e.key === "Enter") {
+      searchByKeyword();
     }
   };
+
+  const searchByKeyword = () => {
+    if (query !== `` && query !== null) {
+      console.log(`Start Search With keyword : ${query}`);
+      // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다
+      const options = {
+        size: 10,
+      };
+      placeObject.keywordSearch(query, placesSearchCB, options);
+    }
+  };
+
+  function placesSearchCB(data, status, pagination) {
+    if (status === window.kakao.maps.services.Status.OK) {
+      var searchDatas = [];
+      // console.log(data);
+      data.forEach((item) => {
+        const {
+          address_name,
+          category_group_name,
+          place_name,
+          road_address_name,
+          phone,
+          place_url,
+          x,
+          y,
+        } = item;
+        searchDatas.push(
+          new SearchData(
+            1,
+            address_name,
+            category_group_name,
+            place_name,
+            road_address_name,
+            phone,
+            place_url,
+            x,
+            y
+          )
+        );
+      });
+      console.log(`Search Complete : ${searchDatas}`);
+      setSearchResults(searchDatas);
+    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+      alert("검색 결과가 존재하지 않습니다.");
+      return;
+    } else if (status === window.kakao.maps.services.Status.ERROR) {
+      alert("검색 결과 중 오류가 발생했습니다.");
+      return;
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -58,16 +143,20 @@ const SearchBar = ({ onSearch, searchResults }) => {
                     </InputAdornment>
                   ),
                 }}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
               />
             </div>
-            {searchResults.map((item, index) => (
-              <SearchListItem
-                key={index}
-                searchData={item}
-                isFirst={index === 0}
-                isLast={index === searchResults.length - 1}
-              />
-            ))}
+            <div class="search-result-container">
+              {searchResults.map((item, index) => (
+                <SearchListItem
+                  key={index}
+                  searchData={item}
+                  isFirst={index === 0}
+                  isLast={index === searchResults.length - 1}
+                />
+              ))}
+            </div>
           </div>
         </Box>
       </div>

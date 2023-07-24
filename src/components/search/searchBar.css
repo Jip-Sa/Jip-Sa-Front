@@ -12,3 +12,8 @@
   flex-direction: column;
   margin-top: 0.2rem;
 }
+
+.search-result-container {
+  height: 70vh;
+  overflow: auto; /* 스크롤이 가능하도록 설정 */
+}
