@@ -13,6 +13,12 @@ const theme = createTheme({
       main: "#43a047",
     },
   },
+  colors: {
+    level1: "#19D730",
+    level2: "#F4EA36",
+    level3: "#F49136",
+    level4: "#F44336",
+  },
   typography: {
     h1: {
       fontWeight: 700,

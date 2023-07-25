@@ -26,6 +26,7 @@ const BuildingInfoPage = (props) => {
   const [gu, setGu] = useState("");
   const [dong, setDong] = useState("");
   const [jibun, setJibun] = useState("");
+  const [risk, setRisk] = useState(110);
   const [placeName, setPlaceName] = useState("");
   const [tradeInfos, setTradeInfos] = useState([]);
   const [rentInfos, setRentInfos] = useState([]);
@@ -41,6 +42,7 @@ const BuildingInfoPage = (props) => {
     setGu(props.gu);
     setDong(props.dong);
     setJibun(props.jibun);
+    setRisk(props.risk);
     const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
 
     axios
@@ -130,7 +132,7 @@ const BuildingInfoPage = (props) => {
             위험도
           </Typography>
           <div>
-            <CircularGauge percent={75} />
+            <CircularGauge percent={risk} place={placeName} />
           </div>
         </div>
         <Separator></Separator>

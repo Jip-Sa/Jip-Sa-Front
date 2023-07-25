@@ -27,7 +27,9 @@ const ContractItem = (props) => {
           {data.year}년 {data.month}월
         </div>
         <div>{data.price}만원</div>
-        <div>{data.size}m^2</div>
+        <div>
+          {data.size}m<sup>2</sup>
+        </div>
         {!props.isLast && <div className="separatora" />}
       </div>
     </ThemeProvider>

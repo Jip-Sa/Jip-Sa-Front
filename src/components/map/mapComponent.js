@@ -21,6 +21,7 @@ const MapComponent = ({ searchResults }) => {
   const [clickedGu, setClickedGu] = useState("");
   const [clickedDong, setClickedDong] = useState("");
   const [clickedJibun, setClickedJibun] = useState("");
+  const [clickedRisk, setclickedRisk] = useState(90);
 
   useEffect(() => {
     var container = document.getElementById("map");
@@ -115,13 +116,23 @@ const MapComponent = ({ searchResults }) => {
         //   .catch((error) => {
         //     console.error("Trade 데이터를 불러오는 데 실패했습니다:", error);
         //   });
-        const level = 1;
+        const risk = 120;
         geoObject.addressSearch(address, function (result, status) {
           // 정상적으로 검색이 완료됐으면
           if (status === window.kakao.maps.services.Status.OK) {
             var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
-            var imageSrc = greenImage; // 마커이미지의 주소입니다
+            var imageSrc = greenImage;
+            if (risk < 80) {
+              imageSrc = greenImage;
+            } else if (risk >= 80 && risk <= 90) {
+              imageSrc = yellowImage;
+            } else if (risk > 90 && risk <= 110) {
+              imageSrc = orangeImage;
+            } else {
+              imageSrc = redImage;
+            }
+            // 마커이미지의 주소입니다
             var imageSize = new window.kakao.maps.Size(32, 35); // 마커이미지의 크기입니다
             const imageOption = {
               offset: new window.kakao.maps.Point(27, 69),
@@ -148,7 +159,7 @@ const MapComponent = ({ searchResults }) => {
                 item.gu.trim(),
                 item.dong.trim(),
                 item.jibun.trim(),
-                level
+                risk
               );
             });
           }
@@ -196,7 +207,7 @@ const MapComponent = ({ searchResults }) => {
     setSearchedMarkers([]);
   };
 
-  const getMarkerClick = (placeName, gu, dong, jibun) => {
+  const getMarkerClick = (placeName, gu, dong, jibun, risk) => {
     console.log(`Click Marker placeName : ${placeName}`);
     console.log(`Click Marker placeaddress : ${gu} ${dong} ${jibun}`);
 
@@ -205,6 +216,7 @@ const MapComponent = ({ searchResults }) => {
     setClickedGu(gu);
     setClickedDong(dong);
     setClickedJibun(jibun);
+    setclickedRisk(risk);
   };
 
   const getUniqueArray = (arr1, arr2) => {
@@ -238,6 +250,7 @@ const MapComponent = ({ searchResults }) => {
             gu={clickedGu}
             dong={clickedDong}
             jibun={clickedJibun}
+            risk={clickedRisk}
           />,
           document.getElementById("building-info-root") // 새 창을 생성할 DOM 요소 지정
         )}

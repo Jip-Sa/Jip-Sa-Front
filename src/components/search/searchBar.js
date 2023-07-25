@@ -83,6 +83,7 @@ const SearchBar = ({ getSearchResults }) => {
     if (status === window.kakao.maps.services.Status.OK) {
       var searchDatas = [];
       // console.log(data);
+      //TODO: for of로 바꾸고 여기서 level 가져오기
       data.forEach((item) => {
         const {
           address_name,
