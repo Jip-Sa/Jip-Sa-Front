@@ -22,7 +22,6 @@ const MapComponent = ({ searchResults }) => {
     var container = document.getElementById("map");
 
     window.kakao.maps.load(() => {
-      console.log(`load map!!!`);
       setInitialized(true);
       const options = {
         center: new window.kakao.maps.LatLng(
@@ -51,7 +50,6 @@ const MapComponent = ({ searchResults }) => {
             message += "경도는 " + latlng.getLng() + " 입니다";
 
             console.log(message);
-            console.log(`Click Mapaaa`);
             setShowBuildingInfo(false);
           }
         );
@@ -71,8 +69,6 @@ const MapComponent = ({ searchResults }) => {
     axios
       .get(tradeUrl)
       .then((response) => {
-        // console.log(response.data);
-
         setTradeDatas(response.data.officetel);
       })
       .catch((error) => {
@@ -82,8 +78,6 @@ const MapComponent = ({ searchResults }) => {
     axios
       .get(rentUrl)
       .then((response) => {
-        // console.log(response.data);
-
         setRentDatas(response.data.officetel);
       })
       .catch((error) => {
@@ -106,10 +100,9 @@ const MapComponent = ({ searchResults }) => {
       uniqueDatas !== undefined
     ) {
       for (const item of Array.from(uniqueDatas)) {
-        // console.log(item);
         const address = `서울시 ${item.gu.trim()} ${item.dong.trim()} ${item.jibun.trim()}`;
         // 주소로 좌표를 검색합니다
-        // console.log(address);
+
         geoObject.addressSearch(address, function (result, status) {
           // 정상적으로 검색이 완료됐으면
           if (status === window.kakao.maps.services.Status.OK) {
@@ -203,7 +196,7 @@ const MapComponent = ({ searchResults }) => {
 
     // 'combinedKey' 프로퍼티를 삭제하여 원래 형태의 JSON 객체 배열로 변환
     const uniqueArr = uniqueArray.map(({ combinedKey, ...rest }) => rest);
-    console.log(uniqueArr);
+    // console.log(uniqueArr);
     return uniqueArr;
   };
 
