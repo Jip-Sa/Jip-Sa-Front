@@ -8,8 +8,15 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
     />
     <title>집사 - 집사와 함께 집사</title>
+    <script
+      type="text/javascript"
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=51065c0b917224030b3b3905d372a82b&libraries=services,clusterer,drawing"
+    ></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div style="display: flex; flex-direction: row">
+      <div id="root" style="width: 100vw"></div>
+      <div id="building-info-root""></div>
+    </div>
   </body>
 </html>

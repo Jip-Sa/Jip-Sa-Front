@@ -7,12 +7,10 @@ const NotoSansKRRegular = "../font/NotoSansKR-Regular.otf";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#ffce00",
+      main: "#1b5e20",
     },
-    fontColor: {
-      main: "#BABABA",
-      light: "#A1A1A1",
-      dark: "#505050", //가장 어두운 색
+    secondary: {
+      main: "#43a047",
     },
   },
   typography: {
