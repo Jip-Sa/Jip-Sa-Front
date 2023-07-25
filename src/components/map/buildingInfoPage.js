@@ -35,15 +35,13 @@ const BuildingInfoPage = (props) => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
   useEffect(() => {
     setPlaceName(props.placeName);
     setGu(props.gu);
     setDong(props.dong);
     setJibun(props.jibun);
-  }, [props]);
-
-  useEffect(() => {
-    const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${gu}&dong=${dong}&jibun=${jibun}`;
+    const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
 
     axios
       .get(tradeUrl)
@@ -60,9 +58,7 @@ const BuildingInfoPage = (props) => {
             )
           );
         }
-        console.log(
-          `--------------------This is trade datas------------------`
-        );
+        console.log(`----------This is trade datas---------`);
         console.log(tradeDatas);
         setTradeInfos(tradeDatas.reverse());
       })
@@ -70,7 +66,7 @@ const BuildingInfoPage = (props) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
 
-    const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/rentInfo?gu=${gu}&dong=${dong}&jibun=${jibun}`;
+    const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/rentInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
 
     axios
       .get(rentUrl)
@@ -87,14 +83,14 @@ const BuildingInfoPage = (props) => {
             )
           );
         }
-        console.log(`--------------------This is Lent datas------------------`);
+        console.log(`-----------This is Lent datas------`);
         console.log(rentDatas);
         setRentInfos(rentDatas.reverse());
       })
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
-  }, [placeName, gu, dong, jibun]);
+  }, [props]);
 
   useEffect(() => {
     setAllInfos(sortInfos(rentInfos, tradeInfos));
