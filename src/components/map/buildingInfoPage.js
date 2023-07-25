@@ -16,20 +16,24 @@ import Separator from "../separator";
 import "./buildingInfoPage.css"; // 외부 CSS 파일을 import
 
 const BuildingInfoPage = (props) => {
-  const [address, setAddress] = useState("서울시 강남구 대치동 1");
+  const [gu, setGu] = useState("강남구");
+  const [dong, setDong] = useState("대치동");
+  const [jibun, setJibun] = useState("1");
   const [placeName, setPlaceName] = useState("");
   const [tradeInfos, setTradeInfos] = useState([]);
   const [rentInfos, setRentInfos] = useState([]);
 
   useEffect(() => {
     setPlaceName(props.placeName);
-    setAddress(props.address);
+    setGu(props.gu);
+    setDong(props.dong);
+    setJibun(props.jibun);
   }, [props]);
 
   useEffect(() => {
     // const url =
     //   "http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=강남구&dong=대치동&jibun=";
-  }, [address]);
+  }, [props]);
   return (
     <div className="building-info-container">
       <Typography variant="h6" gutterBottom>

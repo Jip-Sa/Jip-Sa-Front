@@ -11,6 +11,10 @@ const MapComponent = ({ searchResults }) => {
   const [searchedMarkers, setSearchedMarkers] = useState([]);
   const [showBuildingInfo, setShowBuildingInfo] = useState(false);
   const [mapDatas, setMapDatas] = useState([]);
+  const [clickedPlaceName, setClickedPlaceName] = useState("");
+  const [clickedGu, setClickedGu] = useState("");
+  const [clickedDong, setClickedDong] = useState("");
+  const [clickedJibun, setClickedJibun] = useState("");
 
   useEffect(() => {
     var container = document.getElementById("map");
@@ -124,7 +128,7 @@ const MapComponent = ({ searchResults }) => {
         newMarkers.push(marker); // 마커를 배열에 저장합니다.
         window.kakao.maps.event.addListener(marker, "click", function () {
           // 마커 위에 인포윈도우를 표시합니다
-          getMarkerClick();
+          getMarkerClick(item.place, item.gu, item.dong, item.jibun);
         });
       });
       mapObject.setBounds(bounds);
@@ -139,9 +143,13 @@ const MapComponent = ({ searchResults }) => {
     setSearchedMarkers([]);
   };
 
-  const getMarkerClick = (e) => {
-    console.log(`Click Marker`);
+  const getMarkerClick = (placeName, gu, dong, jibun) => {
+    console.log(`Click Marker placeName : ${placeName}`);
     setShowBuildingInfo(true);
+    setClickedPlaceName(placeName);
+    setClickedGu(gu);
+    setClickedDong(dong);
+    setClickedJibun(jibun);
   };
 
   const onInfoClose = (e) => {
@@ -154,7 +162,12 @@ const MapComponent = ({ searchResults }) => {
       <div id="map" style={{ width: "100%", height: "100vh" }}></div>
       {showBuildingInfo &&
         ReactDOM.createPortal(
-          <BuildingInfoPage />,
+          <BuildingInfoPage
+            placeName={clickedPlaceName}
+            gu={clickedGu}
+            dong={clickedDong}
+            jibun={clickedJibun}
+          />,
           document.getElementById("building-info-root") // 새 창을 생성할 DOM 요소 지정
         )}
     </div>
