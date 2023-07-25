@@ -1,0 +1,32 @@
+.gauge-container {
+  width: 140px;
+  height: 140px;
+}
+
+.gauge {
+  width: 100%;
+  height: 100%;
+}
+
+.gauge-circle-bg {
+  fill: none;
+  stroke: #e0e0e0;
+  stroke-width: 10;
+}
+
+.gauge-circle {
+  fill: none;
+  stroke: #00cc00; /* 게이지의 색깔을 설정합니다. */
+  stroke-width: 10;
+  transition: stroke-dashoffset 0.2s linear; /* strokeDashoffset 애니메이션을 설정합니다. */
+  transform: rotate(-90deg); /* 원을 반시계방향으로 90도 회전합니다. */
+  transform-origin: 70px 70px; /* 회전의 중심점을 설정합니다. */
+}
+
+.gauge-text {
+  font-size: 24px;
+  font-weight: bold;
+  fill: #00cc00; /* 텍스트의 색깔을 게이지와 동일하게 설정합니다. */
+  dominant-baseline: middle;
+  text-anchor: middle;
+}
