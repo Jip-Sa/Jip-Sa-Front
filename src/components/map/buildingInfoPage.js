@@ -78,7 +78,7 @@ const BuildingInfoPage = (props) => {
               rentData.year,
               rentData.month,
               rentData.size,
-              rentData.tradePrice,
+              rentData.rentPrice,
               false
             )
           );

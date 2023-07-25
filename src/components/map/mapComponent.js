@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
+import greenImage from "../../icon/green_marker.png";
+import yellowImage from "../../icon/yellow_marker.png";
+import orangeImage from "../../icon/orange_marker.png";
+import redImage from "../../icon/red_marker.png";
 import BuildingInfoPage from "./buildingInfoPage";
 
 const MapComponent = ({ searchResults }) => {
@@ -58,7 +62,6 @@ const MapComponent = ({ searchResults }) => {
     });
   }, []);
 
-  // "http://172.10.5.130:80/jipsa/api/v1/rentInfo-dong?gu=성동구&dong=용답동&jibun=229-1";
   useEffect(() => {
     const tradeUrl =
       "http://172.10.5.130:80/jipsa/api/v1/leastTrade-dong?gu=성북구&dong=석관동";
@@ -102,16 +105,40 @@ const MapComponent = ({ searchResults }) => {
       for (const item of Array.from(uniqueDatas)) {
         const address = `서울시 ${item.gu.trim()} ${item.dong.trim()} ${item.jibun.trim()}`;
         // 주소로 좌표를 검색합니다
+        const url = `http://172.10.5.130:80/jipsa/api/v1/level`;
+        // axios
+        //   .get(url)
+        //   .then((response) => {
+        //     const level = 1;
 
+        //   })
+        //   .catch((error) => {
+        //     console.error("Trade 데이터를 불러오는 데 실패했습니다:", error);
+        //   });
+        const level = 1;
         geoObject.addressSearch(address, function (result, status) {
           // 정상적으로 검색이 완료됐으면
           if (status === window.kakao.maps.services.Status.OK) {
             var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
+            var imageSrc = greenImage; // 마커이미지의 주소입니다
+            var imageSize = new window.kakao.maps.Size(32, 35); // 마커이미지의 크기입니다
+            const imageOption = {
+              offset: new window.kakao.maps.Point(27, 69),
+            }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+
+            // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
+            var markerImage = new window.kakao.maps.MarkerImage(
+              imageSrc,
+              imageSize,
+              imageOption
+            );
+
             // 결과값으로 받은 위치를 마커로 표시합니다
             var marker = new window.kakao.maps.Marker({
               map: mapObject,
               position: coords,
+              image: markerImage,
             });
 
             window.kakao.maps.event.addListener(marker, "click", function () {
@@ -120,7 +147,8 @@ const MapComponent = ({ searchResults }) => {
                 item.name,
                 item.gu.trim(),
                 item.dong.trim(),
-                item.jibun.trim()
+                item.jibun.trim(),
+                level
               );
             });
           }
