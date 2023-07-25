@@ -1,6 +1,7 @@
 // Building Info Page
 import React, { useEffect, useState } from "react";
 import theme from "../../Theme/theme";
+import axios from "axios";
 import {
   InputBase,
   ThemeProvider,
@@ -16,9 +17,9 @@ import Separator from "../separator";
 import "./buildingInfoPage.css"; // 외부 CSS 파일을 import
 
 const BuildingInfoPage = (props) => {
-  const [gu, setGu] = useState("강남구");
-  const [dong, setDong] = useState("대치동");
-  const [jibun, setJibun] = useState("1");
+  const [gu, setGu] = useState("");
+  const [dong, setDong] = useState("");
+  const [jibun, setJibun] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [tradeInfos, setTradeInfos] = useState([]);
   const [rentInfos, setRentInfos] = useState([]);
@@ -31,9 +32,17 @@ const BuildingInfoPage = (props) => {
   }, [props]);
 
   useEffect(() => {
-    // const url =
-    //   "http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=강남구&dong=대치동&jibun=";
-  }, [props]);
+    const url = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${gu}&dong=${dong}&jibun=${jibun}`;
+    console.log(`This is Url : ${url}`);
+    axios
+      .get(url)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("데이터를 불러오는 데 실패했습니다:", error);
+      });
+  }, [placeName, gu, dong, jibun]);
   return (
     <div className="building-info-container">
       <Typography variant="h6" gutterBottom>
