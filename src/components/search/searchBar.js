@@ -40,9 +40,7 @@ class SearchData {
 const SearchBar = ({ getSearchResults }) => {
   const [query, setQuery] = useState("");
   const [placeObject, setPlaceObject] = useState();
-  const [searchResults, setSearchResults] = useState([
-    new SearchData(1, "", "", "", "", "", "", "", ""),
-  ]);
+  const [searchResults, setSearchResults] = useState([]);
   const [boxHeight, setBoxHeight] = useState("auto");
 
   useEffect(() => {
@@ -76,6 +74,9 @@ const SearchBar = ({ getSearchResults }) => {
         size: 10,
       };
       placeObject.keywordSearch(query, placesSearchCB, options);
+    } else {
+      setSearchResults([]);
+      getSearchResults([]);
     }
   };
 
@@ -126,7 +127,7 @@ const SearchBar = ({ getSearchResults }) => {
       <Box
         boxShadow={10}
         style={{
-          borderRadius: "0 0 10px 10px",
+          borderRadius: "10px 10px 10px 10px",
         }}
       >
         <div className="container">
@@ -134,8 +135,9 @@ const SearchBar = ({ getSearchResults }) => {
             <div
               style={{
                 backgroundColor: "#fff",
-                borderRadius: "10px 10px 0 0 ",
-                padding: 8,
+                borderRadius: "10px 10px 0px 0px",
+                padding: "1rem",
+                width: "25rem",
               }}
             >
               <TextField

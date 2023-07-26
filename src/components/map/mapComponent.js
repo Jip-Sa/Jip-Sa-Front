@@ -209,6 +209,8 @@ const MapComponent = ({ searchResults }) => {
       });
       mapObject.setBounds(bounds);
       setSearchedMarkers(newMarkers);
+    } else if (searchResults.length === 0) {
+      removeMarkers();
     }
   }, [searchResults, initialized]);
 
