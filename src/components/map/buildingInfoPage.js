@@ -2,7 +2,17 @@
 import React, { useEffect, useState } from "react";
 import theme from "../../Theme/theme";
 import axios from "axios";
-import { ThemeProvider, Box, Tab, Typography } from "@mui/material";
+import {
+  ThemeProvider,
+  Box,
+  Tab,
+  Typography,
+  Select,
+  MenuItem,
+  FormHelperText,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
@@ -11,6 +21,7 @@ import Separator from "../separator";
 import ContractItem from "./contractItem";
 import "./buildingInfoPage.css"; // 외부 CSS 파일을 import
 import { borderBottom } from "@mui/system";
+import { PhotoSizeSelectActualOutlined } from "@mui/icons-material";
 
 class ContractData {
   constructor(year, month, size, price, isTrade) {
@@ -31,10 +42,23 @@ const BuildingInfoPage = (props) => {
   const [tradeInfos, setTradeInfos] = useState([]);
   const [rentInfos, setRentInfos] = useState([]);
   const [allInfos, setAllInfos] = useState([]);
+  // -----
+  const [tradeSizes, setTradeSizes] = useState([50, 54, 43.2]);
+  const [rentSizes, setRentSizes] = useState([50, 54, 43.2]);
+  const [sizes, setSizes] = useState([50, 54, 43.2]);
   const [value, setValue] = useState("1");
+  const [selectedSize, setSelectedSize] = useState("All");
+  const [selectedSizeTradeInfos, setSelectedSizeTradeInfos] = useState([]);
+  const [selectedSizeRentInfos, setSelectedSizeRentInfos] = useState([]);
+  const [selectedSizeAllInfos, setSelectedSizeAllInfos] = useState([]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleSizeChange = (e) => {
+    console.log(e.target.value);
+    setSelectedSize(e.target.value);
   };
 
   useEffect(() => {
@@ -43,6 +67,28 @@ const BuildingInfoPage = (props) => {
     setDong(props.dong);
     setJibun(props.jibun);
     setRisk(props.risk);
+    const tradeSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeTrade?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
+
+    axios
+      .get(tradeSizeUrl)
+      .then((response) => {
+        setTradeSizes(Array.from(response.data.size));
+      })
+      .catch((error) => {
+        console.error("데이터를 불러오는 데 실패했습니다:", error);
+      });
+
+    const rentSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeRent?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
+
+    axios
+      .get(rentSizeUrl)
+      .then((response) => {
+        setRentSizes(Array.from(response.data.size));
+      })
+      .catch((error) => {
+        console.error("데이터를 불러오는 데 실패했습니다:", error);
+      });
+
     const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
 
     axios
@@ -60,8 +106,6 @@ const BuildingInfoPage = (props) => {
             )
           );
         }
-        console.log(`----------This is trade datas---------`);
-        console.log(tradeDatas);
         setTradeInfos(tradeDatas.reverse());
       })
       .catch((error) => {
@@ -85,8 +129,6 @@ const BuildingInfoPage = (props) => {
             )
           );
         }
-        console.log(`-----------This is Lent datas------`);
-        console.log(rentDatas);
         setRentInfos(rentDatas.reverse());
       })
       .catch((error) => {
@@ -97,6 +139,47 @@ const BuildingInfoPage = (props) => {
   useEffect(() => {
     setAllInfos(sortInfos(rentInfos, tradeInfos));
   }, [tradeInfos, rentInfos]);
+
+  // 전체 size의 종류를 계산해서 반환한다.(setSizes)
+  useEffect(() => {
+    const combinedArray = [...tradeSizes, ...rentSizes];
+
+    // Set을 이용하여 중복 제거
+    const uniqueSet = new Set(combinedArray);
+
+    // 다시 배열로 변환
+    setSizes(Array.from(uniqueSet));
+  }, [tradeSizes, rentSizes]);
+
+  useEffect(() => {
+    if (selectedSize === "All") {
+      setSelectedSizeTradeInfos(tradeInfos);
+      setSelectedSizeRentInfos(rentInfos);
+      setSelectedSizeAllInfos(allInfos);
+    } else {
+      const newTradeInfos = [];
+      for (const tradeData of tradeInfos) {
+        if (tradeData.size === selectedSize) {
+          newTradeInfos.push(tradeData);
+        }
+      }
+      setSelectedSizeTradeInfos(newTradeInfos);
+
+      const newRentInfos = [];
+      for (const rentData of rentInfos) {
+        if (rentData.size === selectedSize) {
+          newTradeInfos.push(rentData);
+        }
+      }
+      setSelectedSizeRentInfos(newRentInfos);
+    }
+  }, [selectedSize, allInfos, tradeInfos, rentInfos]);
+
+  useEffect(() => {
+    setSelectedSizeAllInfos(
+      sortInfos(selectedSizeTradeInfos, selectedSizeRentInfos)
+    );
+  }, [selectedSizeTradeInfos, selectedSizeRentInfos]);
 
   const sortInfos = (arr1, arr2) => {
     const combinedArray = [...arr1, ...arr2];
@@ -126,7 +209,57 @@ const BuildingInfoPage = (props) => {
             {placeName}
           </Typography>
         </div>
-        <Separator></Separator>
+        <FormControl
+          sx={{
+            m: 1,
+            minWidth: 120,
+            fontFamily: "Nanum Gothic",
+            fontWeight: 800,
+          }}
+        >
+          <InputLabel
+            id="demo-simple-select-helper-label"
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+            }}
+          >
+            Size
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-helper-label"
+            id="demo-simple-select-helper"
+            value={selectedSize}
+            label="size"
+            onChange={handleSizeChange}
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+            }}
+          >
+            <MenuItem value="All">
+              <em
+                style={{
+                  fontFamily: "Nanum Gothic",
+                  fontWeight: 800,
+                }}
+              >
+                All
+              </em>
+            </MenuItem>
+            {sizes.map((item, index) => (
+              <MenuItem
+                value={item}
+                sx={{
+                  fontFamily: "Nanum Gothic",
+                  fontWeight: 300,
+                }}
+              >
+                {item}m<sup>2</sup>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <div className="level-container">
           <Separator></Separator>
           <Typography variant="button" gutterBottom>
@@ -136,8 +269,9 @@ const BuildingInfoPage = (props) => {
             <CircularGauge percent={risk} place={placeName} />
           </div>
         </div>
-        <Separator></Separator>
+
         <div className="contract-info-container">
+          <Separator></Separator>
           <Typography variant="button" gutterBottom>
             최근 거래 내역
           </Typography>
@@ -187,30 +321,30 @@ const BuildingInfoPage = (props) => {
                   }}
                 >
                   <div>
-                    {allInfos.map((item, index) => (
+                    {selectedSizeAllInfos.map((item, index) => (
                       <ContractItem
                         key={index}
                         contractData={item}
-                        isLast={index === allInfos.length - 1}
+                        isLast={index === selectedSizeAllInfos.length - 1}
                       />
                     ))}
                   </div>
                 </TabPanel>
                 <TabPanel value="2">
-                  {tradeInfos.map((item, index) => (
+                  {selectedSizeTradeInfos.map((item, index) => (
                     <ContractItem
                       key={index}
                       contractData={item}
-                      isLast={index === tradeInfos.length - 1}
+                      isLast={index === selectedSizeTradeInfos.length - 1}
                     />
                   ))}
                 </TabPanel>
                 <TabPanel value="3">
-                  {rentInfos.map((item, index) => (
+                  {selectedSizeRentInfos.map((item, index) => (
                     <ContractItem
                       key={index}
                       contractData={item}
-                      isLast={index === rentInfos.length - 1}
+                      isLast={index === selectedSizeRentInfos.length - 1}
                     />
                   ))}
                 </TabPanel>

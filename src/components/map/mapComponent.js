@@ -68,7 +68,8 @@ const MapComponent = ({ searchResults }) => {
       "http://172.10.5.130:80/jipsa/api/v1/leastTrade-dong?gu=성북구&dong=석관동";
     const rentUrl =
       "http://172.10.5.130:80/jipsa/api/v1/leastRent-dong?gu=성북구&dong=석관동";
-
+    // const tradeUrl = "http://172.10.5.130:80/jipsa/api/v1/leastTrade";
+    // const rentUrl = "http://172.10.5.130:80/jipsa/api/v1/leastRent";
     // Axios를 사용하여 GET 요청 보내기
     axios
       .get(tradeUrl)
@@ -104,7 +105,7 @@ const MapComponent = ({ searchResults }) => {
       uniqueDatas !== undefined
     ) {
       for (const item of Array.from(uniqueDatas)) {
-        const address = `서울시 ${item.gu.trim()} ${item.dong.trim()} ${item.jibun.trim()}`;
+        const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
         // 주소로 좌표를 검색합니다
         const url = `http://172.10.5.130:80/jipsa/api/v1/level`;
         // axios
@@ -154,13 +155,7 @@ const MapComponent = ({ searchResults }) => {
 
             window.kakao.maps.event.addListener(marker, "click", function () {
               // 마커 위에 인포윈도우를 표시합니다
-              getMarkerClick(
-                item.name,
-                item.gu.trim(),
-                item.dong.trim(),
-                item.jibun.trim(),
-                risk
-              );
+              getMarkerClick(item.name, item.gu, item.dong, item.jibun, risk);
             });
           }
         });
@@ -225,7 +220,7 @@ const MapComponent = ({ searchResults }) => {
     // 합친 JSON 객체 배열에서 'gu', 'dong', 'jibun' 값을 합친 문자열 프로퍼티를 생성
     const newArray = combinedArray.map((item) => ({
       ...item,
-      combinedKey: `${item.gu.trim()}-${item.dong.trim()}-${item.jibun.trim()}`,
+      combinedKey: `${item.gu}-${item.dong}-${item.jibun}`,
     }));
 
     // 중복 항목을 제거하여 새로운 JSON 객체 배열 생성
