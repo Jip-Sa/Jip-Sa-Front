@@ -69,30 +69,34 @@ const BuildingInfoPage = (props) => {
     setDong(props.dong);
     setJibun(props.jibun);
     setRisk(props.risk);
-    const tradeSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeTrade?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
 
+    const tradeSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeTrade?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
     axios
       .get(tradeSizeUrl)
       .then((response) => {
-        setTradeSizes(Array.from(response.data.size));
+        const sortedArr = Array.from(response.data.size)
+          .map((str) => Number(str))
+          .sort((a, b) => a - b);
+        setTradeSizes(sortedArr);
       })
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
 
     const rentSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeRent?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(rentSizeUrl)
       .then((response) => {
-        setRentSizes(Array.from(response.data.size));
+        const sortedArr = Array.from(response.data.size)
+          .map((str) => Number(str))
+          .sort((a, b) => a - b);
+        setRentSizes(sortedArr);
       })
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
 
     const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(tradeUrl)
       .then((response) => {
@@ -115,7 +119,6 @@ const BuildingInfoPage = (props) => {
       });
 
     const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/rentInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(rentUrl)
       .then((response) => {
