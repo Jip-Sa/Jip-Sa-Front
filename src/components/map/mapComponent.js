@@ -122,7 +122,7 @@ const MapComponent = ({ searchResults }) => {
       uniqueDatas !== undefined
     ) {
       for (const item of Array.from(uniqueDatas)) {
-        const address = `서울시 ${item.gu} ${item.dong.trim()} ${item.jibun}`;
+        const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
         // 주소로 좌표를 검색합니다
         const url = `http://172.10.5.130:80/jipsa/api/v1/level`;
         // axios
