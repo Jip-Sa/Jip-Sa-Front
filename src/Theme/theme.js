@@ -3,6 +3,7 @@ import { createTheme } from "@mui/material/styles";
 const NotoSansKRBold = "../font/NotoSansKR-Bold.otf";
 const NotoSansKRMedium = "../font/NotoSansKR-Medium.otf";
 const NotoSansKRRegular = "../font/NotoSansKR-Regular.otf";
+const isunsinBold = "../font/isunsinB.ttf";
 
 const theme = createTheme({
   palette: {
@@ -18,6 +19,8 @@ const theme = createTheme({
     level2: "#F4EA36",
     level3: "#F49136",
     level4: "#F44336",
+    trade: "#ff8c00",
+    rent: "#00ff00",
   },
   typography: {
     h1: {
@@ -47,6 +50,11 @@ const theme = createTheme({
                     font-family: 'Noto Sans KR';
                     font-weight: 400;
                     src: local('NotoSansKR-Regular'), url(${NotoSansKRRegular}) format('otf');
+                },
+                @font-face {
+                    font-family: 'isunsin';
+                    font-weight: 500;
+                    src: local('isunsinB'), url(${isunsinBold}) format('ttf');
                 },
             `,
     },
