@@ -23,6 +23,37 @@ const MapComponent = ({ searchResults }) => {
   const [clickedJibun, setClickedJibun] = useState("");
   const [clickedRisk, setclickedRisk] = useState(90);
 
+  const [mapLevel, setMapLevel] = useState(2);
+  const [newGu, setNewGu] = useState("");
+
+  const guLatLngList = [
+    { gu: "강남구", x: "127.0495556", y: "37.514575", show: false },
+    { gu: "강동구", x: "127.1258639", y: "37.52736667", show: false },
+    { gu: "강북구", x: "127.0277194", y: "37.63695556", show: false },
+    { gu: "강서구", x: "126.851675", y: "37.54815556", show: false },
+    { gu: "관악구", x: "126.9538444", y: "37.47538611", show: false },
+    { gu: "광진구", x: "127.0845333", y: "37.53573889", show: false },
+    { gu: "구로구", x: "126.8895972", y: "37.49265", show: false },
+    { gu: "금천구", x: "126.9041972", y: "37.44910833", show: false },
+    { gu: "노원구", x: "127.0583889", y: "37.65146111", show: false },
+    { gu: "도봉구", x: "127.0495222", y: "37.66583333", show: false },
+    { gu: "동대문구", x: "127.0421417", y: "37.571625", show: false },
+    { gu: "동작구", x: "126.941575", y: "37.50965556", show: false },
+    { gu: "마포구", x: "126.9105306", y: "37.56070556", show: false },
+    { gu: "서대문구", x: "126.9388972", y: "37.57636667", show: false },
+    { gu: "서초구", x: "127.0348111", y: "37.48078611", show: false },
+    { gu: "성동구", x: "127.039", y: "37.56061111", show: false },
+    { gu: "성북구", x: "127.0203333", y: "37.58638333", show: false },
+    { gu: "송파구", x: "127.1079306", y: "37.51175556", show: false },
+    { gu: "양천구", x: "126.8687083", y: "37.51423056", show: false },
+    { gu: "영등포구", x: "126.8983417", y: "37.52361111", show: false },
+    { gu: "용산구", x: "126.9675222", y: "37.53609444", show: false },
+    { gu: "은평구", x: "126.9312417", y: "37.59996944", show: false },
+    { gu: "종로구", x: "126.9816417", y: "37.57037778", show: false },
+    { gu: "중구", x: "126.9996417", y: "37.56100278", show: false },
+    { gu: "중랑구", x: "127.0947778", y: "37.60380556", show: false },
+  ];
+
   useEffect(() => {
     const mapScriptSrc = `//dapi.kakao.com/v2/maps/sdk.js?appkey=51065c0b917224030b3b3905d372a82b&libraries=services,clusterer,drawing`;
     const existingScript = document.querySelector(
@@ -47,7 +78,7 @@ const MapComponent = ({ searchResults }) => {
             37.5858280343867,
             126.995896931187
           ),
-          level: 2,
+          level: mapLevel,
           preventDraggable: true,
           zoomControl: true,
         };
@@ -57,6 +88,7 @@ const MapComponent = ({ searchResults }) => {
           var geocoder = new window.kakao.maps.services.Geocoder();
           setGeoObject(geocoder);
 
+          // 위도 경도 찾는 event
           window.kakao.maps.event.addListener(
             map,
             "click",
@@ -72,6 +104,74 @@ const MapComponent = ({ searchResults }) => {
               setShowBuildingInfo(false);
             }
           );
+          // 경계 찾는 이벤드
+          window.kakao.maps.event.addListener(
+            map,
+            "bounds_changed",
+            function () {
+              // 지도 영역정보를 얻어옵니다
+              let bounds = map.getBounds();
+              let center = map.getCenter();
+              let swLatlng = bounds.getSouthWest();
+              // 영역정보의 북동쪽 정보를 얻어옵니다
+              var neLatlng = bounds.getNorthEast();
+              const newBounds = new window.kakao.maps.LatLngBounds(
+                swLatlng,
+                neLatlng
+              ); // 인자를 주지 않으면 빈 영역을 생성한다.
+              let isBreak = false;
+              for (const guLatLng of guLatLngList) {
+                let guLoc = new window.kakao.maps.LatLng(
+                  guLatLng.y,
+                  guLatLng.x
+                );
+                if (newBounds.contain(guLoc)) {
+                  if (!guLatLng.show && map.getLevel() < 5) {
+                    console.log(
+                      `Getting the info of ${guLatLng.gu} / This is Map Level : ${mapLevel}`
+                    );
+                    setNewGu(guLatLng.gu);
+                    guLatLng.show = true;
+                    isBreak = true;
+                    break;
+                  }
+                }
+              }
+
+              let minDist = 10000000;
+              let minGu = "";
+              if (!isBreak) {
+                for (const guLatLng of guLatLngList) {
+                  let guDist =
+                    Math.abs(guLatLng.y - center.getLng()) +
+                    Math.abs(guLatLng.x - center.getLat());
+                  if (guDist <= minDist) {
+                    minGu = guLatLng.gu;
+                  }
+                }
+                if (minGu !== "") {
+                  for (const guLatLng of guLatLngList) {
+                    if (guLatLng.gu === minGu) {
+                      if (!guLatLng.show) {
+                        setNewGu(minGu);
+                        console.log(`Get info of ${minGu}`);
+                        guLatLng.show = true;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          );
+
+          // 확대 축소 이벤트
+          window.kakao.maps.event.addListener(map, "zoom_changed", function () {
+            // 지도의 현재 레벨을 얻어옵니다
+            let curLevel = map.getLevel();
+            setMapLevel(curLevel);
+            // level 4까지만 load 시키자.
+            console.log(`This is the level of current map : ${curLevel}`);
+          });
         }
       });
     };
@@ -81,10 +181,8 @@ const MapComponent = ({ searchResults }) => {
   }, []);
 
   useEffect(() => {
-    const tradeUrl =
-      "http://172.10.5.130:80/jipsa/api/v1/leastTrade-dong?gu=성북구&dong=석관동";
-    const rentUrl =
-      "http://172.10.5.130:80/jipsa/api/v1/leastRent-dong?gu=성북구&dong=석관동";
+    const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/leastTrade-gu?gu=${newGu}`;
+    const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/leastRent-gu?gu=${newGu}`;
     // const tradeUrl = "http://172.10.5.130:80/jipsa/api/v1/leastTrade";
     // const rentUrl = "http://172.10.5.130:80/jipsa/api/v1/leastRent";
     // Axios를 사용하여 GET 요청 보내기
@@ -105,7 +203,7 @@ const MapComponent = ({ searchResults }) => {
       .catch((error) => {
         console.error("Rent 데이터를 불러오는 데 실패했습니다:", error);
       });
-  }, []);
+  }, [newGu]);
 
   // set unique array
   useEffect(() => {
@@ -169,7 +267,7 @@ const MapComponent = ({ searchResults }) => {
           }
         }
       }
-
+      console.log(`Add Marker`);
       fetchAddresses();
     }
   }, [uniqueDatas, geoObject, mapObject]);
