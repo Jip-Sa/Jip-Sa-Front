@@ -121,23 +121,13 @@ const MapComponent = ({ searchResults }) => {
       uniqueDatas !== [] &&
       uniqueDatas !== undefined
     ) {
-      for (const item of Array.from(uniqueDatas)) {
-        const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
-        // 주소로 좌표를 검색합니다
-        const url = `http://172.10.5.130:80/jipsa/api/v1/level`;
-        // axios
-        //   .get(url)
-        //   .then((response) => {
-        //     const level = 1;
+      async function fetchAddresses() {
+        for (const item of Array.from(uniqueDatas)) {
+          const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
+          const risk = 120;
 
-        //   })
-        //   .catch((error) => {
-        //     console.error("Trade 데이터를 불러오는 데 실패했습니다:", error);
-        //   });
-        const risk = 120;
-        geoObject.addressSearch(address, function (result, status) {
-          // 정상적으로 검색이 완료됐으면
-          if (status === window.kakao.maps.services.Status.OK) {
+          try {
+            const result = await addressSearchPromise(geoObject, address);
             var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
             var imageSrc = greenImage;
@@ -145,7 +135,7 @@ const MapComponent = ({ searchResults }) => {
               imageSrc = greenImage;
             } else if (risk >= 80 && risk <= 90) {
               imageSrc = yellowImage;
-            } else if (risk > 90 && risk <= 110) {
+            } else if (risk > 90 && risk <= 100) {
               imageSrc = orangeImage;
             } else {
               imageSrc = redImage;
@@ -174,11 +164,28 @@ const MapComponent = ({ searchResults }) => {
               // 마커 위에 인포윈도우를 표시합니다
               getMarkerClick(item.name, item.gu, item.dong, item.jibun, risk);
             });
+          } catch (error) {
+            console.error("Error searching address:", error);
           }
-        });
+        }
       }
+
+      fetchAddresses();
     }
   }, [uniqueDatas, geoObject, mapObject]);
+
+  function addressSearchPromise(geoObject, address) {
+    return new Promise((resolve, reject) => {
+      geoObject.addressSearch(address, function (result, status) {
+        // 정상적으로 검색이 완료됐으면
+        if (status === window.kakao.maps.services.Status.OK) {
+          resolve(result);
+        } else {
+          reject(new Error("Failed to search address."));
+        }
+      });
+    });
+  }
 
   // 검색 결과 처리
   useEffect(() => {
