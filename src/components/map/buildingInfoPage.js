@@ -69,7 +69,7 @@ const BuildingInfoPage = (props) => {
     setDong(props.dong);
     setJibun(props.jibun);
     setRisk(props.risk);
-
+    setSelectedSize("All");
     const tradeSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeTrade?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
     axios
       .get(tradeSizeUrl)
@@ -164,7 +164,7 @@ const BuildingInfoPage = (props) => {
     } else {
       const newTradeInfos = [];
       for (const tradeData of tradeInfos) {
-        if (tradeData.size === selectedSize) {
+        if (tradeData.size == selectedSize) {
           newTradeInfos.push(tradeData);
         }
       }
@@ -172,7 +172,7 @@ const BuildingInfoPage = (props) => {
 
       const newRentInfos = [];
       for (const rentData of rentInfos) {
-        if (rentData.size === selectedSize) {
+        if (rentData.size == selectedSize) {
           newRentInfos.push(rentData);
         }
       }
@@ -271,7 +271,14 @@ const BuildingInfoPage = (props) => {
         </FormControl>
         <div className="level-container">
           <Separator></Separator>
-          <Typography variant="button" gutterBottom>
+          <Typography
+            variant="button"
+            gutterBottom
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+            }}
+          >
             위험도
           </Typography>
           <div>
@@ -281,7 +288,14 @@ const BuildingInfoPage = (props) => {
 
         <div className="contract-info-container">
           <Separator></Separator>
-          <Typography variant="button" gutterBottom>
+          <Typography
+            variant="button"
+            gutterBottom
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+            }}
+          >
             최근 거래 내역
           </Typography>
           <Box
