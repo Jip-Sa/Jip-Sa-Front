@@ -51,6 +51,8 @@ const BuildingInfoPage = (props) => {
   const [selectedSizeTradeInfos, setSelectedSizeTradeInfos] = useState([]);
   const [selectedSizeRentInfos, setSelectedSizeRentInfos] = useState([]);
   const [selectedSizeAllInfos, setSelectedSizeAllInfos] = useState([]);
+  // ------
+  const panelHeight = "60.9vh";
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -168,7 +170,7 @@ const BuildingInfoPage = (props) => {
       const newRentInfos = [];
       for (const rentData of rentInfos) {
         if (rentData.size === selectedSize) {
-          newTradeInfos.push(rentData);
+          newRentInfos.push(rentData);
         }
       }
       setSelectedSizeRentInfos(newRentInfos);
@@ -205,7 +207,11 @@ const BuildingInfoPage = (props) => {
     <ThemeProvider theme={theme}>
       <div className="building-info-container">
         <div className="building-name">
-          <Typography variant="h6" gutterBottom>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{ fontFamily: "Nanum Gothic", fontWeight: 800 }}
+          >
             {placeName}
           </Typography>
         </div>
@@ -316,7 +322,7 @@ const BuildingInfoPage = (props) => {
                   value="1"
                   style={{
                     paddingBottom: 0,
-                    height: "60.9vh",
+                    height: panelHeight,
                     overflowY: "auto",
                   }}
                 >
@@ -330,7 +336,14 @@ const BuildingInfoPage = (props) => {
                     ))}
                   </div>
                 </TabPanel>
-                <TabPanel value="2">
+                <TabPanel
+                  value="2"
+                  style={{
+                    paddingBottom: 0,
+                    height: panelHeight,
+                    overflowY: "auto",
+                  }}
+                >
                   {selectedSizeTradeInfos.map((item, index) => (
                     <ContractItem
                       key={index}
@@ -339,7 +352,14 @@ const BuildingInfoPage = (props) => {
                     />
                   ))}
                 </TabPanel>
-                <TabPanel value="3">
+                <TabPanel
+                  value="3"
+                  style={{
+                    paddingBottom: 0,
+                    height: panelHeight,
+                    overflowY: "auto",
+                  }}
+                >
                   {selectedSizeRentInfos.map((item, index) => (
                     <ContractItem
                       key={index}
