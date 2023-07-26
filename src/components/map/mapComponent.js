@@ -24,43 +24,60 @@ const MapComponent = ({ searchResults }) => {
   const [clickedRisk, setclickedRisk] = useState(90);
 
   useEffect(() => {
+    const mapScriptSrc = `//dapi.kakao.com/v2/maps/sdk.js?appkey=51065c0b917224030b3b3905d372a82b&libraries=services,clusterer,drawing`;
+    const existingScript = document.querySelector(
+      `script[src="${mapScriptSrc}"]`
+    );
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    const mapScript = document.createElement("script");
+    mapScript.async = true;
+    mapScript.src = mapScriptSrc;
+
+    document.head.appendChild(mapScript);
+
     var container = document.getElementById("map");
+    const onLoadKakaoMap = () => {
+      window.kakao.maps.load(() => {
+        setInitialized(true);
+        const options = {
+          center: new window.kakao.maps.LatLng(
+            37.5858280343867,
+            126.995896931187
+          ),
+          level: 2,
+          preventDraggable: true,
+          zoomControl: true,
+        };
+        if (mapObject == null) {
+          const map = new window.kakao.maps.Map(container, options);
+          setMapObject(map);
+          var geocoder = new window.kakao.maps.services.Geocoder();
+          setGeoObject(geocoder);
 
-    window.kakao.maps.load(() => {
-      setInitialized(true);
-      const options = {
-        center: new window.kakao.maps.LatLng(
-          37.5858280343867,
-          126.995896931187
-        ),
-        level: 2,
-        preventDraggable: true,
-        zoomControl: true,
-      };
-      if (mapObject == null) {
-        const map = new window.kakao.maps.Map(container, options);
-        setMapObject(map);
+          window.kakao.maps.event.addListener(
+            map,
+            "click",
+            function (mouseEvent) {
+              // 클릭한 위도, 경도 정보를 가져옵니다
+              var latlng = mouseEvent.latLng;
 
-        var geocoder = new window.kakao.maps.services.Geocoder();
-        setGeoObject(geocoder);
+              var message =
+                "클릭한 위치의 위도는 " + latlng.getLat() + " 이고, ";
+              message += "경도는 " + latlng.getLng() + " 입니다";
 
-        window.kakao.maps.event.addListener(
-          map,
-          "click",
-          function (mouseEvent) {
-            // 클릭한 위도, 경도 정보를 가져옵니다
-            var latlng = mouseEvent.latLng;
+              console.log(message);
+              setShowBuildingInfo(false);
+            }
+          );
+        }
+      });
+    };
+    mapScript.addEventListener("load", onLoadKakaoMap);
 
-            var message = "클릭한 위치의 위도는 " + latlng.getLat() + " 이고, ";
-            message += "경도는 " + latlng.getLng() + " 입니다";
-
-            console.log(message);
-            setShowBuildingInfo(false);
-          }
-        );
-      }
-      // 주소-좌표 변환 객체를 생성합니다
-    });
+    return () => mapScript.removeEventListener("load", onLoadKakaoMap);
   }, []);
 
   useEffect(() => {
@@ -105,7 +122,7 @@ const MapComponent = ({ searchResults }) => {
       uniqueDatas !== undefined
     ) {
       for (const item of Array.from(uniqueDatas)) {
-        const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
+        const address = `서울시 ${item.gu} ${item.dong.trim()} ${item.jibun}`;
         // 주소로 좌표를 검색합니다
         const url = `http://172.10.5.130:80/jipsa/api/v1/level`;
         // axios
