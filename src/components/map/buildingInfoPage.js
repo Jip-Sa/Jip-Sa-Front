@@ -128,6 +128,7 @@ const BuildingInfoPage = (props) => {
         </div>
         <Separator></Separator>
         <div className="level-container">
+          <Separator></Separator>
           <Typography variant="button" gutterBottom>
             위험도
           </Typography>
@@ -147,20 +148,44 @@ const BuildingInfoPage = (props) => {
             }}
           >
             <TabContext value={value}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
                 <TabList
                   onChange={handleChange}
                   aria-label="lab API tabs example"
                   variant="fullWidth"
                   centered
                 >
-                  <Tab label="전체" value="1" />
-                  <Tab label="매매" value="2" />
-                  <Tab label="전/월세" value="3" />
+                  <Tab
+                    label="전체"
+                    value="1"
+                    sx={{ fontFamily: "Nanum Gothic", fontWeight: 800 }}
+                  />
+                  <Tab
+                    label="매매"
+                    value="2"
+                    sx={{ fontFamily: "Nanum Gothic", fontWeight: 800 }}
+                  />
+                  <Tab
+                    label="전세"
+                    value="3"
+                    sx={{ fontFamily: "Nanum Gothic", fontWeight: 800 }}
+                  />
                 </TabList>
               </Box>
-              <div style={{ height: "50vh", overflowY: "scroll" }}>
-                <TabPanel value="1">
+              <div style={{ flex: 1, flexDirection: "column" }}>
+                <TabPanel
+                  value="1"
+                  style={{
+                    paddingBottom: 0,
+                    height: "60.9vh",
+                    overflowY: "auto",
+                  }}
+                >
                   <div>
                     {allInfos.map((item, index) => (
                       <ContractItem
