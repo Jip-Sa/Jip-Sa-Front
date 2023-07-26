@@ -221,53 +221,74 @@ const MapComponent = ({ searchResults }) => {
     ) {
       async function fetchAddresses() {
         for (const item of Array.from(uniqueDatas)) {
-          const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
-          const risk = 120;
-
           try {
-            const result = await addressSearchPromise(geoObject, address);
-            var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-
-            var imageSrc = greenImage;
-            if (risk < 80) {
-              imageSrc = greenImage;
-            } else if (risk >= 80 && risk <= 90) {
-              imageSrc = yellowImage;
-            } else if (risk > 90 && risk <= 100) {
-              imageSrc = orangeImage;
-            } else {
-              imageSrc = redImage;
-            }
-            // 마커이미지의 주소입니다
-            var imageSize = new window.kakao.maps.Size(32, 35); // 마커이미지의 크기입니다
-            const imageOption = {
-              offset: new window.kakao.maps.Point(27, 69),
-            }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-
-            // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
-            var markerImage = new window.kakao.maps.MarkerImage(
-              imageSrc,
-              imageSize,
-              imageOption
-            );
-
-            // 결과값으로 받은 위치를 마커로 표시합니다
-            var marker = new window.kakao.maps.Marker({
-              map: mapObject,
-              position: coords,
-              image: markerImage,
-            });
-
-            window.kakao.maps.event.addListener(marker, "click", function () {
-              // 마커 위에 인포윈도우를 표시합니다
-              getMarkerClick(item.name, item.gu, item.dong, item.jibun, risk);
-            });
+            fetchMarker(item, 82);
+            // TODO: percent 반환 api 만들어지면 연결하기
+            // const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/highest-percent-gu?gu=${item.gu}&dong=${item.dong}&jibun=${item.jibun}`;
+            // axios
+            //   .get(percentUrl)
+            //   .then((response) => {
+            //     fetchMarker(item, response.data.percent);
+            //   })
+            //   .catch((error) => {
+            //     console.error(
+            //       "Trade 데이터를 불러오는 데 실패했습니다:",
+            //       error
+            //     );
+            //   });
           } catch (error) {
             console.error("Error searching address:", error);
           }
         }
       }
-      console.log(`Add Marker`);
+
+      async function fetchMarker(item, percent) {
+        const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
+        const risk = percent;
+
+        try {
+          const result = await addressSearchPromise(geoObject, address);
+          var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+
+          var imageSrc = greenImage;
+          if (risk <= 80) {
+            imageSrc = greenImage;
+          } else if (risk > 80 && risk <= 90) {
+            imageSrc = yellowImage;
+          } else if (risk > 90 && risk <= 100) {
+            imageSrc = orangeImage;
+          } else {
+            imageSrc = redImage;
+          }
+          // 마커이미지의 주소입니다
+          var imageSize = new window.kakao.maps.Size(32, 35); // 마커이미지의 크기입니다
+          const imageOption = {
+            offset: new window.kakao.maps.Point(27, 69),
+          }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+
+          // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
+          var markerImage = new window.kakao.maps.MarkerImage(
+            imageSrc,
+            imageSize,
+            imageOption
+          );
+
+          // 결과값으로 받은 위치를 마커로 표시합니다
+          var marker = new window.kakao.maps.Marker({
+            map: mapObject,
+            position: coords,
+            image: markerImage,
+          });
+
+          window.kakao.maps.event.addListener(marker, "click", function () {
+            // 마커 위에 인포윈도우를 표시합니다
+            getMarkerClick(item.name, item.gu, item.dong, item.jibun, risk);
+          });
+        } catch (error) {
+          console.error("Error searching address:", error);
+        }
+      }
+
       fetchAddresses();
     }
   }, [uniqueDatas, geoObject, mapObject]);
@@ -304,13 +325,7 @@ const MapComponent = ({ searchResults }) => {
 
         bounds.extend(position); // bound에 좌표를 추가합니다.
 
-        // marker.setMap(mapObject); // 마커가 지도 위에 표시되도록 설정합니다
-
-        newMarkers.push(marker); // 마커를 배열에 저장합니다.
-        // window.kakao.maps.event.addListener(marker, "click", function () {
-        //   // 마커 위에 인포윈도우를 표시합니다
-        //   getMarkerClick(item.place, item.gu, item.dong, item.jibun);
-        // });
+        newMarkers.push(marker);
       });
       mapObject.setBounds(bounds);
       setSearchedMarkers(newMarkers);
