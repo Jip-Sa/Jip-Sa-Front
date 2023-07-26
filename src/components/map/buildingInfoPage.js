@@ -52,7 +52,7 @@ const BuildingInfoPage = (props) => {
   const [selectedSizeRentInfos, setSelectedSizeRentInfos] = useState([]);
   const [selectedSizeAllInfos, setSelectedSizeAllInfos] = useState([]);
   // ------
-  const panelHeight = "60.9vh";
+  const panelHeight = "55vh";
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -213,7 +213,12 @@ const BuildingInfoPage = (props) => {
           <Typography
             variant="h6"
             gutterBottom
-            sx={{ fontFamily: "Nanum Gothic", fontWeight: 800 }}
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+              borderBottom: "2px",
+              borderBottomColor: "#BDBDBD",
+            }}
           >
             {placeName}
           </Typography>
@@ -277,6 +282,7 @@ const BuildingInfoPage = (props) => {
             sx={{
               fontFamily: "Nanum Gothic",
               fontWeight: 800,
+              fontSize: "20px",
             }}
           >
             위험도
@@ -287,6 +293,20 @@ const BuildingInfoPage = (props) => {
         </div>
 
         <div className="contract-info-container">
+          <Typography
+            variant="button"
+            gutterBottom
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+              marginTop: "10px",
+              marginBottom: "15px",
+              fontSize: "13px",
+              color: "#BDBDBD",
+            }}
+          >
+            본 위험도는 가장 최근 매매, 전세 거래 기준으로 계산되었습니다.
+          </Typography>
           <Separator></Separator>
           <Typography
             variant="button"
@@ -294,6 +314,9 @@ const BuildingInfoPage = (props) => {
             sx={{
               fontFamily: "Nanum Gothic",
               fontWeight: 800,
+              marginRight: "auto",
+              marginLeft: "10px",
+              marginTop: "15px",
             }}
           >
             최근 거래 내역
