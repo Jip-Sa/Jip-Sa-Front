@@ -224,7 +224,7 @@ const MapComponent = ({ searchResults }) => {
     const onLoadKakaoMap = () => {
       window.kakao.maps.load(() => {
         const options = {
-          center: new window.kakao.maps.LatLng(37.555722, 126.972661),
+          center: new window.kakao.maps.LatLng(37.498095, 127.02761),
           level: 3,
           preventDraggable: true,
           zoomControl: true,
@@ -259,6 +259,7 @@ const MapComponent = ({ searchResults }) => {
               let swLatlng = bounds.getSouthWest();
               // 영역정보의 북동쪽 정보를 얻어옵니다
               var neLatlng = bounds.getNorthEast();
+
               const newBounds = new window.kakao.maps.LatLngBounds(
                 swLatlng,
                 neLatlng
@@ -284,10 +285,11 @@ const MapComponent = ({ searchResults }) => {
               if (!isBreak) {
                 for (const guLatLng of guLatLngList) {
                   let guDist =
-                    Math.abs(guLatLng.y - center.getLng()) +
-                    Math.abs(guLatLng.x - center.getLat());
+                    Math.abs(guLatLng.y - center.getLat()) +
+                    Math.abs(guLatLng.x - center.getLng());
                   if (guDist < minDist) {
                     minGu = guLatLng.gu;
+                    minDist = guDist;
                   }
                 }
                 if (minGu !== "") {
