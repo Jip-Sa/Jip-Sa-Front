@@ -8,12 +8,13 @@
   background-color: white;
   font-family: "Nanum Gothic", sans-serif;
   font-weight: 800;
+  border-radius: 30px 30px 30px 30px;
 }
 
 .building-name {
-  width: 100%;
+  width: auto;
   display: flex;
-  height: 10vh;
+  height: 7vh;
   justify-content: center;
   align-items: center;
 }

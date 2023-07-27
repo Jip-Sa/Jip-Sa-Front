@@ -9,11 +9,11 @@ const CircularGauge = ({ percent, place }) => {
   useEffect(() => {
     // percent 값에 따라 애니메이션을 위해 progress 값을 증가시킵니다.
 
-    if (percent < 80) {
+    if (percent <= 80) {
       setColor(theme.colors.level1);
-    } else if (percent >= 80 && percent <= 90) {
+    } else if (percent > 80 && percent <= 90) {
       setColor(theme.colors.level2);
-    } else if (percent > 90 && percent <= 110) {
+    } else if (percent > 90 && percent <= 100) {
       setColor(theme.colors.level3);
     } else {
       setColor(theme.colors.level4);

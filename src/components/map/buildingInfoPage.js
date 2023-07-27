@@ -51,8 +51,10 @@ const BuildingInfoPage = (props) => {
   const [selectedSizeTradeInfos, setSelectedSizeTradeInfos] = useState([]);
   const [selectedSizeRentInfos, setSelectedSizeRentInfos] = useState([]);
   const [selectedSizeAllInfos, setSelectedSizeAllInfos] = useState([]);
+  const [SizePercentMap, setSizePercentMap] = useState([]);
+
   // ------
-  const panelHeight = "60.9vh";
+  const panelHeight = "55vh";
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -69,30 +71,34 @@ const BuildingInfoPage = (props) => {
     setDong(props.dong);
     setJibun(props.jibun);
     setRisk(props.risk);
+    setSelectedSize("All");
     const tradeSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeTrade?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(tradeSizeUrl)
       .then((response) => {
-        setTradeSizes(Array.from(response.data.size));
+        const sortedArr = Array.from(response.data.size)
+          .map((str) => Number(str))
+          .sort((a, b) => a - b);
+        setTradeSizes(sortedArr);
       })
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
 
     const rentSizeUrl = `http://172.10.5.130:80/jipsa/api/v1/sizeRent?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(rentSizeUrl)
       .then((response) => {
-        setRentSizes(Array.from(response.data.size));
+        const sortedArr = Array.from(response.data.size)
+          .map((str) => Number(str))
+          .sort((a, b) => a - b);
+        setRentSizes(sortedArr);
       })
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
 
     const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/tradeInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(tradeUrl)
       .then((response) => {
@@ -115,7 +121,6 @@ const BuildingInfoPage = (props) => {
       });
 
     const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/rentInfo?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
-
     axios
       .get(rentUrl)
       .then((response) => {
@@ -136,6 +141,17 @@ const BuildingInfoPage = (props) => {
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
+
+    //TODO: percent 처리하기
+    // const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/percent!!!!!!!!?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
+    // axios
+    //   .get(percentUrl)
+    //   .then((response) => {
+    //     setSizePercentMap(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("데이터를 불러오는 데 실패했습니다:", error);
+    //   });
   }, [props]);
 
   useEffect(() => {
@@ -154,6 +170,11 @@ const BuildingInfoPage = (props) => {
   }, [tradeSizes, rentSizes]);
 
   useEffect(() => {
+    for (const item of SizePercentMap) {
+      if (item.size === selectedSize) {
+        setRisk(item.percent);
+      }
+    }
     if (selectedSize === "All") {
       setSelectedSizeTradeInfos(tradeInfos);
       setSelectedSizeRentInfos(rentInfos);
@@ -161,7 +182,7 @@ const BuildingInfoPage = (props) => {
     } else {
       const newTradeInfos = [];
       for (const tradeData of tradeInfos) {
-        if (tradeData.size === selectedSize) {
+        if (tradeData.size == selectedSize) {
           newTradeInfos.push(tradeData);
         }
       }
@@ -169,7 +190,7 @@ const BuildingInfoPage = (props) => {
 
       const newRentInfos = [];
       for (const rentData of rentInfos) {
-        if (rentData.size === selectedSize) {
+        if (rentData.size == selectedSize) {
           newRentInfos.push(rentData);
         }
       }
@@ -210,7 +231,12 @@ const BuildingInfoPage = (props) => {
           <Typography
             variant="h6"
             gutterBottom
-            sx={{ fontFamily: "Nanum Gothic", fontWeight: 800 }}
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+              borderBottom: "2px",
+              borderBottomColor: "#BDBDBD",
+            }}
           >
             {placeName}
           </Typography>
@@ -268,7 +294,15 @@ const BuildingInfoPage = (props) => {
         </FormControl>
         <div className="level-container">
           <Separator></Separator>
-          <Typography variant="button" gutterBottom>
+          <Typography
+            variant="button"
+            gutterBottom
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+              fontSize: "20px",
+            }}
+          >
             위험도
           </Typography>
           <div>
@@ -277,8 +311,32 @@ const BuildingInfoPage = (props) => {
         </div>
 
         <div className="contract-info-container">
+          <Typography
+            variant="button"
+            gutterBottom
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+              marginTop: "10px",
+              marginBottom: "15px",
+              fontSize: "13px",
+              color: "#BDBDBD",
+            }}
+          >
+            본 위험도는 가장 최근 매매, 전세 거래 기준으로 계산되었습니다.
+          </Typography>
           <Separator></Separator>
-          <Typography variant="button" gutterBottom>
+          <Typography
+            variant="button"
+            gutterBottom
+            sx={{
+              fontFamily: "Nanum Gothic",
+              fontWeight: 800,
+              marginRight: "auto",
+              marginLeft: "10px",
+              marginTop: "15px",
+            }}
+          >
             최근 거래 내역
           </Typography>
           <Box
