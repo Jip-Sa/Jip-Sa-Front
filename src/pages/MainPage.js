@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import MapComponent from "../components/map/mapComponent";
 import SearchBar from "../components/search/searchBar";
+import jipsaLogo from "../icon/jipsaLogo.png";
+import jipsaWhiteLogo from "../icon/logowithwhite.png";
 import "./mainPage.css"; // 외부 CSS 파일을 import
 
 const MainPage = () => {

@@ -74,10 +74,7 @@ const MapComponent = ({ searchResults }) => {
       window.kakao.maps.load(() => {
         setInitialized(true);
         const options = {
-          center: new window.kakao.maps.LatLng(
-            37.5858280343867,
-            126.995896931187
-          ),
+          center: new window.kakao.maps.LatLng(37.555722, 126.972661),
           level: mapLevel,
           preventDraggable: true,
           zoomControl: true,
@@ -126,7 +123,7 @@ const MapComponent = ({ searchResults }) => {
                   guLatLng.x
                 );
                 if (newBounds.contain(guLoc)) {
-                  if (!guLatLng.show && map.getLevel() < 5) {
+                  if (!guLatLng.show) {
                     console.log(
                       `Getting the info of ${guLatLng.gu} / This is Map Level : ${mapLevel}`
                     );
@@ -222,7 +219,7 @@ const MapComponent = ({ searchResults }) => {
       async function fetchAddresses() {
         for (const item of Array.from(uniqueDatas)) {
           try {
-            fetchMarker(item, 82);
+            fetchMarker(item, Math.floor(Math.random() * 51) + 70);
             // TODO: percent 반환 api 만들어지면 연결하기
             // const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/highest-percent-gu?gu=${item.gu}&dong=${item.dong}&jibun=${item.jibun}`;
             // axios

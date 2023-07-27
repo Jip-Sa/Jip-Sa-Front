@@ -51,6 +51,8 @@ const BuildingInfoPage = (props) => {
   const [selectedSizeTradeInfos, setSelectedSizeTradeInfos] = useState([]);
   const [selectedSizeRentInfos, setSelectedSizeRentInfos] = useState([]);
   const [selectedSizeAllInfos, setSelectedSizeAllInfos] = useState([]);
+  const [SizePercentMap, setSizePercentMap] = useState([]);
+
   // ------
   const panelHeight = "55vh";
 
@@ -139,6 +141,17 @@ const BuildingInfoPage = (props) => {
       .catch((error) => {
         console.error("데이터를 불러오는 데 실패했습니다:", error);
       });
+
+    //TODO: percent 처리하기
+    // const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/percent!!!!!!!!?gu=${props.gu}&dong=${props.dong}&jibun=${props.jibun}`;
+    // axios
+    //   .get(percentUrl)
+    //   .then((response) => {
+    //     setSizePercentMap(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("데이터를 불러오는 데 실패했습니다:", error);
+    //   });
   }, [props]);
 
   useEffect(() => {
@@ -157,6 +170,11 @@ const BuildingInfoPage = (props) => {
   }, [tradeSizes, rentSizes]);
 
   useEffect(() => {
+    for (const item of SizePercentMap) {
+      if (item.size === selectedSize) {
+        setRisk(item.percent);
+      }
+    }
     if (selectedSize === "All") {
       setSelectedSizeTradeInfos(tradeInfos);
       setSelectedSizeRentInfos(rentInfos);
