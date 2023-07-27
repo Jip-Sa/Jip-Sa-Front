@@ -7,25 +7,175 @@ import orangeImage from "../../icon/orange_marker.png";
 import redImage from "../../icon/red_marker.png";
 import greyImage from "../../icon/grey_marker.png";
 import BuildingInfoPage from "./buildingInfoPage";
+import { ConstructionOutlined } from "@mui/icons-material";
+class Queue {
+  constructor() {
+    this.items = [];
+  }
+
+  // 큐에 요소 추가 (enqueue)
+  enqueue(item) {
+    this.items.push(item);
+  }
+
+  // 큐에서 요소 제거하고 반환 (dequeue)
+  dequeue() {
+    if (this.isEmpty()) {
+      return "Queue is empty.";
+    }
+    return this.items.shift();
+  }
+
+  // 큐의 첫 번째 요소 반환 (front)
+  front() {
+    if (this.isEmpty()) {
+      return "Queue is empty.";
+    }
+    return this.items[0];
+  }
+
+  // 큐가 비어있는지 확인
+  isEmpty() {
+    return this.items.length === 0;
+  }
+
+  // 큐의 크기 반환
+  size() {
+    return this.items.length;
+  }
+
+  // 큐의 모든 요소 출력
+  printQueue() {
+    console.log(this.items);
+  }
+}
 
 const MapComponent = ({ searchResults }) => {
-  const [initialized, setInitialized] = useState(false);
-  const [mapObject, setMapObject] = useState(null);
-  const [geoObject, setGeoObject] = useState();
-  const [baseMarkers, setBaseMarkers] = useState();
   const [searchedMarkers, setSearchedMarkers] = useState([]);
   const [showBuildingInfo, setShowBuildingInfo] = useState(false);
-  const [tradeDatas, setTradeDatas] = useState([]);
-  const [rentDatas, setRentDatas] = useState([]);
-  const [uniqueDatas, setUniqueDatas] = useState([]);
+
   const [clickedPlaceName, setClickedPlaceName] = useState("");
   const [clickedGu, setClickedGu] = useState("");
   const [clickedDong, setClickedDong] = useState("");
   const [clickedJibun, setClickedJibun] = useState("");
   const [clickedRisk, setclickedRisk] = useState(90);
 
-  const [mapLevel, setMapLevel] = useState(2);
-  const [newGu, setNewGu] = useState("");
+  let mapObject = null;
+  const guLoadQueue = new Queue();
+  let isGuLoading = false;
+  let isInitialized = false;
+
+  async function requestLoadOfGu(gu) {
+    guLoadQueue.enqueue(gu);
+    loadGuInfo();
+  }
+  async function loadGuInfo() {
+    if (!isGuLoading && !guLoadQueue.isEmpty() && isInitialized) {
+      isGuLoading = true;
+      const newGu = guLoadQueue.dequeue();
+      console.log(`Start Marking of Gu : ${newGu}`);
+      await startMarkingOfGu(newGu);
+      console.log(`Finish Marking of Gu : ${newGu}`);
+      isGuLoading = false;
+      loadGuInfo();
+    }
+  }
+
+  async function startMarkingOfGu(newGu) {
+    const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/leastTrade-gu?gu=${newGu}`;
+    const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/leastRent-gu?gu=${newGu}`;
+    try {
+      const tradeResponse = await axios.get(tradeUrl);
+      const tradeBuildingDatas = tradeResponse.data.officetel;
+
+      const rentResponse = await axios.get(rentUrl);
+      const rentBuildingDatas = rentResponse.data.officetel;
+
+      const tradeArr = Array.from(tradeBuildingDatas);
+      const rentArr = Array.from(rentBuildingDatas);
+
+      const uniqueBuildingDatas = getUniqueArray(tradeArr, rentArr);
+
+      if (
+        uniqueBuildingDatas !== null &&
+        uniqueBuildingDatas !== [] &&
+        uniqueBuildingDatas !== undefined
+      ) {
+        await fetchAddresses(uniqueBuildingDatas);
+      }
+    } catch (error) {
+      console.error("Trade 데이터를 불러오는 데 실패했습니다:", error);
+    }
+  }
+
+  async function fetchAddresses(uniqueBuildingDatas) {
+    for (const item of Array.from(uniqueBuildingDatas)) {
+      try {
+        const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/level-max?gu=${item.gu}&dong=${item.dong}&jibun=${item.jibun}`;
+        try {
+          const response = await axios.get(percentUrl);
+          if (response.data.result) {
+            await fetchMarker(item, response.data.percent);
+          } else {
+            await fetchMarker(item, -1);
+          }
+        } catch (error) {
+          console.error(error.message);
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+  }
+
+  async function fetchMarker(item, percent) {
+    const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
+    const risk = percent;
+
+    try {
+      const result = await addressSearchPromise(address);
+      var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+
+      var imageSrc = greenImage;
+      if (risk < 0) {
+        imageSrc = greyImage;
+      } else if (risk <= 80) {
+        imageSrc = greenImage;
+      } else if (risk > 80 && risk <= 90) {
+        imageSrc = yellowImage;
+      } else if (risk > 90 && risk <= 100) {
+        imageSrc = orangeImage;
+      } else {
+        imageSrc = redImage;
+      }
+      // 마커이미지의 주소입니다
+      var imageSize = new window.kakao.maps.Size(32, 35); // 마커이미지의 크기입니다
+      const imageOption = {
+        offset: new window.kakao.maps.Point(27, 69),
+      }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+
+      // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
+      var markerImage = new window.kakao.maps.MarkerImage(
+        imageSrc,
+        imageSize,
+        imageOption
+      );
+
+      // 결과값으로 받은 위치를 마커로 표시합니다
+      var marker = new window.kakao.maps.Marker({
+        map: mapObject,
+        position: coords,
+        image: markerImage,
+      });
+
+      window.kakao.maps.event.addListener(marker, "click", function () {
+        // 마커 위에 인포윈도우를 표시합니다
+        getMarkerClick(item.name, item.gu, item.dong, item.jibun, risk);
+      });
+    } catch (error) {
+      console.error("Error searching address:", error);
+    }
+  }
 
   const guLatLngList = [
     { gu: "강남구", x: "127.0495556", y: "37.514575", show: false },
@@ -73,19 +223,15 @@ const MapComponent = ({ searchResults }) => {
     var container = document.getElementById("map");
     const onLoadKakaoMap = () => {
       window.kakao.maps.load(() => {
-        setInitialized(true);
         const options = {
-          center: new window.kakao.maps.LatLng(37.555722, 126.972661),
-          level: mapLevel,
+          center: new window.kakao.maps.LatLng(37.498095, 127.02761),
+          level: 3,
           preventDraggable: true,
           zoomControl: true,
         };
         if (mapObject == null) {
           const map = new window.kakao.maps.Map(container, options);
-          setMapObject(map);
-          var geocoder = new window.kakao.maps.services.Geocoder();
-          setGeoObject(geocoder);
-
+          mapObject = map;
           // 위도 경도 찾는 event
           window.kakao.maps.event.addListener(
             map,
@@ -113,6 +259,7 @@ const MapComponent = ({ searchResults }) => {
               let swLatlng = bounds.getSouthWest();
               // 영역정보의 북동쪽 정보를 얻어옵니다
               var neLatlng = bounds.getNorthEast();
+
               const newBounds = new window.kakao.maps.LatLngBounds(
                 swLatlng,
                 neLatlng
@@ -125,10 +272,7 @@ const MapComponent = ({ searchResults }) => {
                 );
                 if (newBounds.contain(guLoc)) {
                   if (!guLatLng.show) {
-                    console.log(
-                      `Getting the info of ${guLatLng.gu} / This is Map Level : ${mapLevel}`
-                    );
-                    setNewGu(guLatLng.gu);
+                    requestLoadOfGu(guLatLng.gu);
                     guLatLng.show = true;
                     isBreak = true;
                     break;
@@ -141,18 +285,18 @@ const MapComponent = ({ searchResults }) => {
               if (!isBreak) {
                 for (const guLatLng of guLatLngList) {
                   let guDist =
-                    Math.abs(guLatLng.y - center.getLng()) +
-                    Math.abs(guLatLng.x - center.getLat());
+                    Math.abs(guLatLng.y - center.getLat()) +
+                    Math.abs(guLatLng.x - center.getLng());
                   if (guDist < minDist) {
                     minGu = guLatLng.gu;
+                    minDist = guDist;
                   }
                 }
                 if (minGu !== "") {
                   for (const guLatLng of guLatLngList) {
                     if (guLatLng.gu === minGu) {
                       if (!guLatLng.show) {
-                        setNewGu(minGu);
-                        console.log(`Get info of ${minGu}`);
+                        requestLoadOfGu(minGu);
                         guLatLng.show = true;
                       }
                     }
@@ -161,16 +305,8 @@ const MapComponent = ({ searchResults }) => {
               }
             }
           );
-
-          // 확대 축소 이벤트
-          window.kakao.maps.event.addListener(map, "zoom_changed", function () {
-            // 지도의 현재 레벨을 얻어옵니다
-            let curLevel = map.getLevel();
-            setMapLevel(curLevel);
-            // level 4까지만 load 시키자.
-            console.log(`This is the level of current map : ${curLevel}`);
-          });
         }
+        isInitialized = true;
       });
     };
     mapScript.addEventListener("load", onLoadKakaoMap);
@@ -178,120 +314,10 @@ const MapComponent = ({ searchResults }) => {
     return () => mapScript.removeEventListener("load", onLoadKakaoMap);
   }, []);
 
-  useEffect(() => {
-    const tradeUrl = `http://172.10.5.130:80/jipsa/api/v1/leastTrade-gu?gu=${newGu}`;
-    const rentUrl = `http://172.10.5.130:80/jipsa/api/v1/leastRent-gu?gu=${newGu}`;
-    // const tradeUrl = "http://172.10.5.130:80/jipsa/api/v1/leastTrade";
-    // const rentUrl = "http://172.10.5.130:80/jipsa/api/v1/leastRent";
-    // Axios를 사용하여 GET 요청 보내기
-    axios
-      .get(tradeUrl)
-      .then((response) => {
-        setTradeDatas(response.data.officetel);
-      })
-      .catch((error) => {
-        console.error("Trade 데이터를 불러오는 데 실패했습니다:", error);
-      });
-
-    axios
-      .get(rentUrl)
-      .then((response) => {
-        setRentDatas(response.data.officetel);
-      })
-      .catch((error) => {
-        console.error("Rent 데이터를 불러오는 데 실패했습니다:", error);
-      });
-  }, [newGu]);
-
-  // set unique array
-  useEffect(() => {
-    // console.log(mapDatas.officetel);
-    const tradeArr = Array.from(tradeDatas);
-    const rentArr = Array.from(rentDatas);
-    setUniqueDatas(getUniqueArray(tradeArr, rentArr));
-  }, [tradeDatas, rentDatas]);
-
-  useEffect(() => {
-    if (
-      uniqueDatas !== null &&
-      uniqueDatas !== [] &&
-      uniqueDatas !== undefined
-    ) {
-      async function fetchAddresses() {
-        for (const item of Array.from(uniqueDatas)) {
-          try {
-            // TODO: percent 반환 api 만들어지면 연결하기
-            const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/level-max?gu=${item.gu}&dong=${item.dong}&jibun=${item.jibun}`;
-            axios
-              .get(percentUrl)
-              .then((response) => {
-                if (response.data.result) {
-                  fetchMarker(item, response.data.percent);
-                } else {
-                  fetchMarker(item, -1);
-                }
-              })
-              .catch((error) => {});
-          } catch (error) {}
-        }
-      }
-
-      async function fetchMarker(item, percent) {
-        const address = `서울시 ${item.gu} ${item.dong} ${item.jibun}`;
-        const risk = percent;
-
-        try {
-          const result = await addressSearchPromise(geoObject, address);
-          var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-
-          var imageSrc = greenImage;
-          if (risk < 0) {
-            imageSrc = greyImage;
-          } else if (risk <= 80) {
-            imageSrc = greenImage;
-          } else if (risk > 80 && risk <= 90) {
-            imageSrc = yellowImage;
-          } else if (risk > 90 && risk <= 100) {
-            imageSrc = orangeImage;
-          } else {
-            imageSrc = redImage;
-          }
-          // 마커이미지의 주소입니다
-          var imageSize = new window.kakao.maps.Size(32, 35); // 마커이미지의 크기입니다
-          const imageOption = {
-            offset: new window.kakao.maps.Point(27, 69),
-          }; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
-
-          // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
-          var markerImage = new window.kakao.maps.MarkerImage(
-            imageSrc,
-            imageSize,
-            imageOption
-          );
-
-          // 결과값으로 받은 위치를 마커로 표시합니다
-          var marker = new window.kakao.maps.Marker({
-            map: mapObject,
-            position: coords,
-            image: markerImage,
-          });
-
-          window.kakao.maps.event.addListener(marker, "click", function () {
-            // 마커 위에 인포윈도우를 표시합니다
-            getMarkerClick(item.name, item.gu, item.dong, item.jibun, risk);
-          });
-        } catch (error) {
-          console.error("Error searching address:", error);
-        }
-      }
-
-      fetchAddresses();
-    }
-  }, [uniqueDatas, geoObject, mapObject]);
-
-  function addressSearchPromise(geoObject, address) {
+  function addressSearchPromise(address) {
     return new Promise((resolve, reject) => {
-      geoObject.addressSearch(address, function (result, status) {
+      var geocoder = new window.kakao.maps.services.Geocoder();
+      geocoder.addressSearch(address, function (result, status) {
         // 정상적으로 검색이 완료됐으면
         if (status === window.kakao.maps.services.Status.OK) {
           resolve(result);
@@ -304,7 +330,7 @@ const MapComponent = ({ searchResults }) => {
 
   // 검색 결과 처리
   useEffect(() => {
-    if (initialized && searchResults.length > 0 && searchResults !== null) {
+    if (isInitialized && searchResults.length > 0 && searchResults !== null) {
       removeMarkers();
       // 새로운 경계 생성
       const bounds = new window.kakao.maps.LatLngBounds();
@@ -328,7 +354,7 @@ const MapComponent = ({ searchResults }) => {
     } else if (searchResults.length === 0) {
       removeMarkers();
     }
-  }, [searchResults, initialized]);
+  }, [searchResults, isInitialized]);
 
   const removeMarkers = () => {
     for (var i = 0; i < searchedMarkers.length; i++) {
