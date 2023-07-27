@@ -5,7 +5,24 @@
 
 .search-bar-container {
   position: absolute;
-  top: 3vh; /* 이 값에 따라 세로 위치 조정 (50px은 예시) */
+  top: 7vh; /* 이 값에 따라 세로 위치 조정 (50px은 예시) */
   left: 3vw; /* 이 값에 따라 가로 위치 조정 (20px은 예시) */
   z-index: 1;
+}
+
+.banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5vh; /* 임의의 높이 설정 (이미지 높이에 맞게 조정) */
+}
+
+.image-container {
+  /* 원하는 이미지 크기에 맞게 조정 */
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  padding-top: 1.5vh;
+  object-fit: contain;
 }

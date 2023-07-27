@@ -15,6 +15,7 @@ const theme = createTheme({
     },
   },
   colors: {
+    level0: "#A5A5A5",
     level1: "#19D730",
     level2: "#F4EA36",
     level3: "#F49136",

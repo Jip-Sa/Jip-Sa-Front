@@ -13,6 +13,9 @@ const MainPage = () => {
   };
   return (
     <div className="main-page-container">
+      <div className="banner">
+        <img src={jipsaLogo} alt="jipsa 로고" className="image-container" />
+      </div>
       <MapComponent searchResults={searchResults} />
       <div className="search-bar-container">
         <SearchBar getSearchResults={handleSearch} />

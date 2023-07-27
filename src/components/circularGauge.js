@@ -8,8 +8,9 @@ const CircularGauge = ({ percent, place }) => {
   const [color, setColor] = useState(theme.colors.level1);
   useEffect(() => {
     // percent 값에 따라 애니메이션을 위해 progress 값을 증가시킵니다.
-
-    if (percent <= 80) {
+    if (percent < 0) {
+      setColor(theme.colors.level0);
+    } else if (percent <= 80) {
       setColor(theme.colors.level1);
     } else if (percent > 80 && percent <= 90) {
       setColor(theme.colors.level2);
@@ -44,7 +45,7 @@ const CircularGauge = ({ percent, place }) => {
           }}
         />
         <text className="gauge-text" x="70" y="70" style={{ fill: color }}>
-          {progress}%
+          {percent < 0 ? `No Value` : `${progress}%`}
         </text>
       </svg>
     </div>

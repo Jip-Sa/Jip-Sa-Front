@@ -5,6 +5,7 @@ import greenImage from "../../icon/green_marker.png";
 import yellowImage from "../../icon/yellow_marker.png";
 import orangeImage from "../../icon/orange_marker.png";
 import redImage from "../../icon/red_marker.png";
+import greyImage from "../../icon/grey_marker.png";
 import BuildingInfoPage from "./buildingInfoPage";
 
 const MapComponent = ({ searchResults }) => {
@@ -142,7 +143,7 @@ const MapComponent = ({ searchResults }) => {
                   let guDist =
                     Math.abs(guLatLng.y - center.getLng()) +
                     Math.abs(guLatLng.x - center.getLat());
-                  if (guDist <= minDist) {
+                  if (guDist < minDist) {
                     minGu = guLatLng.gu;
                   }
                 }
@@ -219,23 +220,19 @@ const MapComponent = ({ searchResults }) => {
       async function fetchAddresses() {
         for (const item of Array.from(uniqueDatas)) {
           try {
-            fetchMarker(item, Math.floor(Math.random() * 51) + 70);
             // TODO: percent 반환 api 만들어지면 연결하기
-            // const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/highest-percent-gu?gu=${item.gu}&dong=${item.dong}&jibun=${item.jibun}`;
-            // axios
-            //   .get(percentUrl)
-            //   .then((response) => {
-            //     fetchMarker(item, response.data.percent);
-            //   })
-            //   .catch((error) => {
-            //     console.error(
-            //       "Trade 데이터를 불러오는 데 실패했습니다:",
-            //       error
-            //     );
-            //   });
-          } catch (error) {
-            console.error("Error searching address:", error);
-          }
+            const percentUrl = `http://172.10.5.130:80/jipsa/api/v1/level-max?gu=${item.gu}&dong=${item.dong}&jibun=${item.jibun}`;
+            axios
+              .get(percentUrl)
+              .then((response) => {
+                if (response.data.result) {
+                  fetchMarker(item, response.data.percent);
+                } else {
+                  fetchMarker(item, -1);
+                }
+              })
+              .catch((error) => {});
+          } catch (error) {}
         }
       }
 
@@ -248,7 +245,9 @@ const MapComponent = ({ searchResults }) => {
           var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
           var imageSrc = greenImage;
-          if (risk <= 80) {
+          if (risk < 0) {
+            imageSrc = greyImage;
+          } else if (risk <= 80) {
             imageSrc = greenImage;
           } else if (risk > 80 && risk <= 90) {
             imageSrc = yellowImage;
@@ -373,7 +372,7 @@ const MapComponent = ({ searchResults }) => {
 
   return (
     <div>
-      <div id="map" style={{ width: "100%", height: "100vh" }}></div>
+      <div id="map" style={{ width: "100%", height: "95vh" }}></div>
       {showBuildingInfo &&
         ReactDOM.createPortal(
           <BuildingInfoPage
